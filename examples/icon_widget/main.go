@@ -1,12 +1,12 @@
 package main
 
 import (
+	"image"
 	"log"
 	"widgets"
 
 	"github.com/guigui-gui/guigui"
 	"github.com/guigui-gui/guigui/basicwidget"
-	"github.com/hajimehoshi/ebiten/v2"
 )
 
 type Root struct {
@@ -20,8 +20,8 @@ type Root struct {
 func (r *Root) Build(context *guigui.Context, adder *guigui.ChildAdder) error {
 	adder.AddWidget(&r.background)
 
-	context.SetPreferredColorMode(ebiten.ColorModeDark)
-	err := r.close.Load("icons/close.svg", nil)
+	//context.SetPreferredColorMode(ebiten.ColorModeDark)
+	err := r.close.Load("icons/menu.png", nil)
 	if err != nil {
 		log.Println(err.Error())
 	}
@@ -31,7 +31,7 @@ func (r *Root) Build(context *guigui.Context, adder *guigui.ChildAdder) error {
 
 func (r *Root) Layout(context *guigui.Context, widgetBounds *guigui.WidgetBounds, layouter *guigui.ChildLayouter) {
 	layouter.LayoutWidget(&r.background, widgetBounds.Bounds())
-	layouter.LayoutWidget(&r.close, widgetBounds.Bounds())
+	layouter.LayoutWidget(&r.close, image.Rect(0, 0, 24, 24))
 }
 
 func main() {

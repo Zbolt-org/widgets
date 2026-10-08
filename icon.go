@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"image"
 	"image/color"
+	"image/png"
 	"io/fs"
 
 	"github.com/guigui-gui/guigui"
@@ -14,7 +15,7 @@ import (
 	"github.com/srwiley/rasterx"
 )
 
-//go:embed icons/*.svg
+//go:embed icons/*
 var icon_directory embed.FS
 
 type Icon struct {
@@ -57,12 +58,7 @@ func (icon_ref *Icon) Load(icon string, fs fs.FS, size ...image.Point) error {
 	}
 	defer file.Close()
 
-	svg, err := oksvg.ReadIconStream(file, oksvg.StrictErrorMode)
-	if err != nil {
-		return err
-	}
-
-	img := svg_to_raster(svg)
+	img, err := png.Decode(file)
 	icon_ref.ebiten_img = ebiten.NewImageFromImage(img)
 	icon_ref.prevoious_color_mod = ebiten.ColorModeUnknown
 	return nil
@@ -84,9 +80,9 @@ func (icon_ref *Icon) Build(context *guigui.Context, adder *guigui.ChildAdder) e
 	if icon_ref.prevoious_color_mod != context.ColorMode() {
 		switch context.ColorMode() {
 		case ebiten.ColorModeDark:
-			replace_color(icon_ref.ebiten_img, color.RGBA{}, color.RGBA{255, 255, 255, 0})
+			replace_color(icon_ref.ebiten_img, color.RGBA{0, 0, 0, 255}, color.RGBA{255, 255, 255, 255})
 		case ebiten.ColorModeLight, ebiten.ColorModeUnknown:
-			replace_color(icon_ref.ebiten_img, color.RGBA{255, 255, 255, 0}, color.RGBA{})
+			replace_color(icon_ref.ebiten_img, color.RGBA{255, 255, 255, 255}, color.RGBA{0, 0, 0, 255})
 		}
 		icon_ref.prevoious_color_mod = context.ColorMode()
 	}
