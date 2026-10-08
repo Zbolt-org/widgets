@@ -4,6 +4,7 @@ import (
 	"embed"
 	"fmt"
 	"image"
+	"image/color"
 	"io/fs"
 
 	"github.com/guigui-gui/guigui"
@@ -22,8 +23,8 @@ type Icon struct {
 	size image.Point
 
 	prevoious_color_mod ebiten.ColorMode
-	ebiten_img          ebiten.Image
-	image_widget basicwidget.Image
+	ebiten_img          *ebiten.Image
+	image_widget        basicwidget.Image
 }
 
 func svg_to_raster(svg *oksvg.SvgIcon) image.Image {
@@ -62,11 +63,35 @@ func (icon_ref *Icon) Load(icon string, fs fs.FS, size ...image.Point) error {
 	}
 
 	img := svg_to_raster(svg)
-	icon_ref.ebiten_img = *ebiten.NewImageFromImage(img)
+	icon_ref.ebiten_img = ebiten.NewImageFromImage(img)
+	icon_ref.prevoious_color_mod = ebiten.ColorModeUnknown
 	return nil
 }
 
+func replace_color(img *ebiten.Image, search, replace_with color.RGBA) {
+	size := img.Bounds().Size()
+	for y := 0; y <= size.Y; y++ {
+		// TODO: Improve this. This currently check 1 pixel at a time. Check multiple pixels at a time by using ReadAt
+		for x := 0; x <= size.X; x++ {
+			if img.At(x, y) == search {
+				img.Set(x, y, replace_with)
+			}
+		}
+	}
+}
+
 func (icon_ref *Icon) Build(context *guigui.Context, adder *guigui.ChildAdder) error {
+	if icon_ref.prevoious_color_mod != context.ColorMode() {
+		switch context.ColorMode() {
+		case ebiten.ColorModeDark:
+			replace_color(icon_ref.ebiten_img, color.RGBA{}, color.RGBA{255, 255, 255, 0})
+		case ebiten.ColorModeLight, ebiten.ColorModeUnknown:
+			replace_color(icon_ref.ebiten_img, color.RGBA{255, 255, 255, 0}, color.RGBA{})
+		}
+		icon_ref.prevoious_color_mod = context.ColorMode()
+	}
+	icon_ref.image_widget.SetImage(icon_ref.ebiten_img)
+	adder.AddWidget(&icon_ref.image_widget)
 	return nil
 }
 
