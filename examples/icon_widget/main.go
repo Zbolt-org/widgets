@@ -1,7 +1,6 @@
 package main
 
 import (
-	"image"
 	"log"
 	"widgets"
 
@@ -14,7 +13,9 @@ type Root struct {
 	background basicwidget.Background
 
 	close    widgets.Icon
-	info_tip widgets.Icon
+	info_tip widgets.InfoHint
+
+	layout guigui.LinearLayout
 }
 
 func (r *Root) Build(context *guigui.Context, adder *guigui.ChildAdder) error {
@@ -25,12 +26,32 @@ func (r *Root) Build(context *guigui.Context, adder *guigui.ChildAdder) error {
 		log.Println(err.Error())
 	}
 	adder.AddWidget(&r.close)
+
+	r.info_tip.SetText("This is a infomation hint.")
+	adder.AddWidget(&r.info_tip)
 	return nil
 }
 
 func (r *Root) Layout(context *guigui.Context, widgetBounds *guigui.WidgetBounds, layouter *guigui.ChildLayouter) {
 	layouter.LayoutWidget(&r.background, widgetBounds.Bounds())
-	layouter.LayoutWidget(&r.close, image.Rect(0, 0, 24, 24))
+
+	u := basicwidget.UnitSize(context)
+	if len(r.layout.Items) == 0 {
+		r.layout = guigui.LinearLayout{
+			Gap:       u / 4,
+			Padding:   guigui.Padding{u, u, u, u},
+			Items: []guigui.LinearLayoutItem{
+				{
+					Widget: &r.close,
+				},
+				{
+					Widget: &r.info_tip,
+				},
+			},
+		}
+	}
+
+	r.layout.LayoutWidgets(context, widgetBounds.Bounds(), layouter)
 }
 
 func main() {

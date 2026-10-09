@@ -1,5 +1,7 @@
 package widgets
 
-type InfoHint struct{
-	
-}
+// Toggle text
+// Loading bar
+// Info hint
+// Tabs
+// ActionNotification
