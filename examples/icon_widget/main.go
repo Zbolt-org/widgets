@@ -21,7 +21,7 @@ func (r *Root) Build(context *guigui.Context, adder *guigui.ChildAdder) error {
 	adder.AddWidget(&r.background)
 
 	//context.SetPreferredColorMode(ebiten.ColorModeDark)
-	err := r.close.Load("icons/menu.png", nil)
+	err := r.close.Load("icons/close.png", nil)
 	if err != nil {
 		log.Println(err.Error())
 	}
