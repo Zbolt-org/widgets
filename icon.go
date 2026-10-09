@@ -45,7 +45,7 @@ func (icon_ref *Icon) Load(icon string, fs fs.FS, size ...image.Point) error {
 
 	if len(size) > 1 {
 		return fmt.Errorf("Extra arguments")
-	} else {
+	} else if len(size) == 1 {
 		icon_ref.size = size[0]
 	}
 
