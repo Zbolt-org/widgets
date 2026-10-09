@@ -34,3 +34,15 @@ func LargeGap(context *guigui.Context) int {
 	u := basicwidget.UnitSize(context)
 	return u
 }
+
+func VerticalCenter(widget guigui.Widget) guigui.LinearLayout {
+	layout := guigui.LinearLayout{
+		Direction: guigui.LayoutDirectionVertical,
+		Items: []guigui.LinearLayoutItem{
+			{Size: guigui.FlexibleSize(1)},
+			{Widget: widget},
+			{Size: guigui.FlexibleSize(1)},
+		},
+	}
+	return layout
+}
