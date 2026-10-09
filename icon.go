@@ -73,12 +73,14 @@ func (icon_ref *Icon) Build(context *guigui.Context, adder *guigui.ChildAdder) e
 	if context.ColorMode() == ebiten.ColorModeLight && !icon_ref.is_black {
 		inverse_color(icon_ref.ebiten_img)
 		icon_ref.is_black = true
-		icon_ref.image_widget.SetImage(icon_ref.ebiten_img)
+		guigui.RequestRedraw(&icon_ref.image_widget)
 	} else if context.ColorMode() == ebiten.ColorModeDark && icon_ref.is_black {
 		inverse_color(icon_ref.ebiten_img)
 		icon_ref.is_black = false
+		guigui.RequestRedraw(&icon_ref.image_widget)
 	}
 
+	icon_ref.image_widget.SetImage(icon_ref.ebiten_img)
 	adder.AddWidget(&icon_ref.image_widget)
 	return nil
 }
