@@ -12,7 +12,7 @@ import (
 type Root struct {
 	guigui.DefaultWidget
 	background basicwidget.Background
-	toggle     guigui.WidgetWithSize[*basicwidget.Toggle]
+	toggle     widgets.LabeledToggle
 
 	close    widgets.Icon
 	info_tip widgets.InfoHint
@@ -22,14 +22,14 @@ type Root struct {
 
 func (r *Root) Build(context *guigui.Context, adder *guigui.ChildAdder) error {
 	adder.AddWidget(&r.background)
-	r.toggle.Widget().OnValueChanged(func(context *guigui.Context, value bool) {
+	r.toggle.SetLabel("Color mode")
+	r.toggle.Toggle().OnValueChanged(func(context *guigui.Context, value bool) {
 		if value {
 			context.SetPreferredColorMode(ebiten.ColorModeDark)
 		} else {
 			context.SetPreferredColorMode(ebiten.ColorModeLight)
 		}
 	})
-	r.toggle.SetFixedWidth(basicwidget.UnitSize(context))
 	adder.AddWidget(&r.toggle)
 
 	if !r.close.HasIcon() {
