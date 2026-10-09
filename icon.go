@@ -45,9 +45,6 @@ func (icon_ref *Icon) Load(icon string, fs fs.FS, size ...image.Point) error {
 
 	if len(size) > 1 {
 		return fmt.Errorf("Extra arguments")
-	} else if len(size) == 0 {
-		icon_ref.size.X = 24
-		icon_ref.size.Y = 24
 	} else {
 		icon_ref.size = size[0]
 	}
@@ -96,5 +93,9 @@ func (icon_ref *Icon) Layout(context *guigui.Context, widgetBounds *guigui.Widge
 }
 
 func (icon_ref *Icon) Measure(context *guigui.Context, constraints guigui.Constraints) image.Point {
+	if icon_ref.size.X == 0 || icon_ref.size.Y == 0 {
+		line_height := basicwidget.LineHeight(context)
+		return image.Pt(line_height, line_height)
+	}
 	return icon_ref.size
 }
