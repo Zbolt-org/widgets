@@ -35,34 +35,32 @@ func (infohint *InfoHint) Build(context *guigui.Context, adder *guigui.ChildAdde
 func (infohint *InfoHint) Layout(context *guigui.Context, widgetBounds *guigui.WidgetBounds, layouter *guigui.ChildLayouter) {
 	b := widgetBounds.Bounds()
 
-	if len(infohint.layout.Items) == 0 {
-		infohint.layout = guigui.LinearLayout{
-			Direction: guigui.LayoutDirectionVertical,
-			Items: []guigui.LinearLayoutItem{
-				{
-					Size: guigui.FlexibleSize(1),
-				},
-				{
-					Layout: guigui.LinearLayout{
-						Direction: guigui.LayoutDirectionHorizontal,
-						Items: []guigui.LinearLayoutItem{
-							{
-								Size: guigui.FlexibleSize(1),
-							},
-							{
-								Widget: &infohint.infohint_icon,
-							},
-							{
-								Size: guigui.FlexibleSize(1),
-							},
+	infohint.layout = guigui.LinearLayout{
+		Direction: guigui.LayoutDirectionVertical,
+		Items: []guigui.LinearLayoutItem{
+			{
+				Size: guigui.FlexibleSize(1),
+			},
+			{
+				Layout: guigui.LinearLayout{
+					Direction: guigui.LayoutDirectionHorizontal,
+					Items: []guigui.LinearLayoutItem{
+						{
+							Size: guigui.FlexibleSize(1),
+						},
+						{
+							Widget: &infohint.infohint_icon,
+						},
+						{
+							Size: guigui.FlexibleSize(1),
 						},
 					},
 				},
-				{
-					Size: guigui.FlexibleSize(1),
-				},
 			},
-		}
+			{
+				Size: guigui.FlexibleSize(1),
+			},
+		},
 	}
 
 	tooltip_area_container_bounds := infohint.layout.ItemBoundsAt(1, context, b)
