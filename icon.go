@@ -2,17 +2,13 @@ package widgets
 
 import (
 	"embed"
-	"fmt"
 	"image"
-	"image/color"
 	"image/png"
 	"io/fs"
 
 	"github.com/guigui-gui/guigui"
 	"github.com/guigui-gui/guigui/basicwidget"
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/srwiley/oksvg"
-	"github.com/srwiley/rasterx"
 )
 
 //go:embed icons/*
@@ -23,19 +19,13 @@ type Icon struct {
 
 	size image.Point
 
-	prevoious_color_mod ebiten.ColorMode
-	ebiten_img          *ebiten.Image
-	image_widget        basicwidget.Image
+	is_black     bool
+	ebiten_img   *ebiten.Image
+	image_widget basicwidget.Image
 }
 
-func svg_to_raster(svg *oksvg.SvgIcon) image.Image {
-	w, h := int(svg.ViewBox.W), int(svg.ViewBox.H)
-	img := image.NewRGBA(image.Rect(0, 0, w, h))
-	scanner := rasterx.NewScannerGV(w, h, img, img.Bounds())
-	raster := rasterx.NewDasher(w, h, scanner)
-
-	svg.Draw(raster, 1.0)
-	return img
+func (icon_ref *Icon) HasIcon() bool {
+	return icon_ref.ebiten_img != nil
 }
 
 func (icon_ref *Icon) Load(icon string, fs fs.FS, size ...image.Point) error {
@@ -44,7 +34,7 @@ func (icon_ref *Icon) Load(icon string, fs fs.FS, size ...image.Point) error {
 	}
 
 	if len(size) > 1 {
-		return fmt.Errorf("Extra arguments")
+		panic("Extra arguments")
 	} else if len(size) == 1 {
 		icon_ref.size = size[0]
 	}
@@ -56,34 +46,39 @@ func (icon_ref *Icon) Load(icon string, fs fs.FS, size ...image.Point) error {
 	defer file.Close()
 
 	img, err := png.Decode(file)
+	if err != nil {
+		return err
+	}
 	icon_ref.ebiten_img = ebiten.NewImageFromImage(img)
-	icon_ref.prevoious_color_mod = ebiten.ColorModeUnknown
 	return nil
 }
 
-func replace_color(img *ebiten.Image, search, replace_with color.RGBA) {
-	size := img.Bounds().Size()
-	for y := 0; y <= size.Y; y++ {
-		// TODO: Improve this. This currently check 1 pixel at a time. Check multiple pixels at a time by using ReadAt
-		for x := 0; x <= size.X; x++ {
-			if img.At(x, y) == search {
-				img.Set(x, y, replace_with)
-			}
+func inverse_color(img *ebiten.Image) {
+	bounds := img.Bounds()
+	pixels := make([]byte, 4*bounds.Dx()*bounds.Dy())
+	img.ReadPixels(pixels)
+	for i := 4; i <= len(pixels); i += 4 {
+		if pixels[i-1] == 0 {
+			continue
 		}
+		rgba := pixels[i-4 : i]
+		rgba[0] = ^rgba[0]
+		rgba[1] = ^rgba[1]
+		rgba[2] = ^rgba[2]
 	}
+	img.WritePixels(pixels)
 }
 
 func (icon_ref *Icon) Build(context *guigui.Context, adder *guigui.ChildAdder) error {
-	if icon_ref.prevoious_color_mod != context.ColorMode() {
-		switch context.ColorMode() {
-		case ebiten.ColorModeDark:
-			replace_color(icon_ref.ebiten_img, color.RGBA{0, 0, 0, 255}, color.RGBA{255, 255, 255, 255})
-		case ebiten.ColorModeLight, ebiten.ColorModeUnknown:
-			replace_color(icon_ref.ebiten_img, color.RGBA{255, 255, 255, 255}, color.RGBA{0, 0, 0, 255})
-		}
-		icon_ref.prevoious_color_mod = context.ColorMode()
+	if context.ColorMode() == ebiten.ColorModeLight && !icon_ref.is_black {
+		inverse_color(icon_ref.ebiten_img)
+		icon_ref.is_black = true
+		icon_ref.image_widget.SetImage(icon_ref.ebiten_img)
+	} else if context.ColorMode() == ebiten.ColorModeDark && icon_ref.is_black {
+		inverse_color(icon_ref.ebiten_img)
+		icon_ref.is_black = false
 	}
-	icon_ref.image_widget.SetImage(icon_ref.ebiten_img)
+
 	adder.AddWidget(&icon_ref.image_widget)
 	return nil
 }

@@ -6,11 +6,13 @@ import (
 
 	"github.com/guigui-gui/guigui"
 	"github.com/guigui-gui/guigui/basicwidget"
+	"github.com/hajimehoshi/ebiten/v2"
 )
 
 type Root struct {
 	guigui.DefaultWidget
 	background basicwidget.Background
+	toggle     guigui.WidgetWithSize[*basicwidget.Toggle]
 
 	close    widgets.Icon
 	info_tip widgets.InfoHint
@@ -20,15 +22,26 @@ type Root struct {
 
 func (r *Root) Build(context *guigui.Context, adder *guigui.ChildAdder) error {
 	adder.AddWidget(&r.background)
+	r.toggle.Widget().OnValueChanged(func(context *guigui.Context, value bool) {
+		if value {
+			context.SetPreferredColorMode(ebiten.ColorModeDark)
+		} else {
+			context.SetPreferredColorMode(ebiten.ColorModeLight)
+		}
+	})
+	r.toggle.SetFixedWidth(basicwidget.UnitSize(context))
+	adder.AddWidget(&r.toggle)
 
-	err := r.close.Load("icons/close.png", nil)
-	if err != nil {
-		log.Println(err.Error())
+	if !r.close.HasIcon() {
+		err := r.close.Load("icons/close.png", nil)
+		if err != nil {
+			return err
+		}
 	}
 	adder.AddWidget(&r.close)
-
 	r.info_tip.SetText("This is a infomation hint.")
 	adder.AddWidget(&r.info_tip)
+
 	return nil
 }
 
@@ -40,12 +53,16 @@ func (r *Root) Layout(context *guigui.Context, widgetBounds *guigui.WidgetBounds
 		r.layout = guigui.LinearLayout{
 			Gap:       u / 4,
 			Padding:   guigui.Padding{u, u, u, u},
+			Direction: guigui.LayoutDirectionHorizontal,
 			Items: []guigui.LinearLayoutItem{
 				{
 					Widget: &r.close,
 				},
 				{
 					Widget: &r.info_tip,
+				},
+				{
+					Widget: &r.toggle,
 				},
 			},
 		}
