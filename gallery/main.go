@@ -12,7 +12,7 @@ import (
 )
 
 func load_image() (*ebiten.Image, error) {
-	file, err := os.Open("./examples/icon_widget/image.jpeg")
+	file, err := os.Open("./gallery/image.jpeg")
 	if err != nil {
 		return nil, err
 	}
