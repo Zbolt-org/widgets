@@ -42,7 +42,7 @@ func (d *SkeletonLoader[T]) Tick(context *guigui.Context, widgetBounds *guigui.W
 
 	guigui.RequestRedraw(d)
 
-	if d.color_level >= 8 {
+	if d.color_level >= 20 {
 		d.backward = true
 	} else if d.color_level == 0 {
 		d.backward = false
