@@ -5,4 +5,3 @@ package widgets
 // Skeleton loader (224-255)
 // Info hint
 // Tabs
-// ActionNotification
