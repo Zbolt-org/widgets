@@ -167,6 +167,7 @@ func (d *TextInput) Build(context *guigui.Context, adder *guigui.ChildAdder) err
 			}(clipboard_content)
 		}
 	})
+	adder.AddWidget(&d.context_menu_area)
 	return nil
 }
 
