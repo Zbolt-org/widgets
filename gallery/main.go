@@ -48,6 +48,9 @@ type Root struct {
 	set_image_load_text basicwidget.Text
 	load_image_toggle   widgets.LabeledToggle
 
+	infinite_loading_bar_text basicwidget.Text
+	infinite_loadingbar       widgets.InfiniteLoadingBar
+
 	layout guigui.LinearLayout
 }
 
@@ -91,6 +94,8 @@ func (r *Root) Build(context *guigui.Context, adder *guigui.ChildAdder) error {
 	r.skeleton_loader_text.SetValue("Skeleton loader")
 	r.set_image_load_text.SetValue("Set image loading state")
 
+	r.infinite_loading_bar_text.SetValue("Infinite loadingbar")
+
 	r.form.SetItems([]basicwidget.FormItem{
 		{
 			PrimaryWidget:   &r.labeled_toggle_text,
@@ -111,6 +116,10 @@ func (r *Root) Build(context *guigui.Context, adder *guigui.ChildAdder) error {
 		{
 			PrimaryWidget:   &r.set_image_load_text,
 			SecondaryWidget: &r.load_image_toggle,
+		},
+		{
+			PrimaryWidget:   &r.infinite_loading_bar_text,
+			SecondaryWidget: &r.infinite_loadingbar,
 		},
 	})
 	adder.AddWidget(&r.form)
