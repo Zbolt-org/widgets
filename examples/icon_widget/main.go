@@ -1,7 +1,9 @@
 package main
 
 import (
+	"image/jpeg"
 	"log"
+	"os"
 	"widgets"
 
 	"github.com/guigui-gui/guigui"
@@ -9,21 +11,49 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
+func load_image() (*ebiten.Image, error) {
+	file, err := os.Open("./examples/icon_widget/image.jpeg")
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	img, err := jpeg.Decode(file)
+	if err != nil {
+		return nil, err
+	}
+
+	return ebiten.NewImageFromImage(img), nil
+}
+
 type Root struct {
 	guigui.DefaultWidget
 	background basicwidget.Background
-	toggle     widgets.LabeledToggle
 
-	close    widgets.Icon
-	info_tip widgets.InfoHint
+	form basicwidget.Form
 
-	btn widgets.SkeletonLoader[*basicwidget.Button]
+	labeled_toggle_text basicwidget.Text
+	toggle              widgets.LabeledToggle
+
+	icon_widget_text basicwidget.Text
+	close            widgets.Icon
+
+	infotip_widget_text basicwidget.Text
+	info_tip            widgets.InfoHint
+
+	skeleton_loader_text basicwidget.Text
+	image                *ebiten.Image
+	image_wdiget         guigui.WidgetWithSize[*widgets.SkeletonLoader[*basicwidget.Image]]
+
+	set_image_load_text basicwidget.Text
+	load_image_toggle   widgets.LabeledToggle
 
 	layout guigui.LinearLayout
 }
 
 func (r *Root) Build(context *guigui.Context, adder *guigui.ChildAdder) error {
 	adder.AddWidget(&r.background)
+
 	r.toggle.SetLabel("Color mode")
 	r.toggle.Toggle().OnValueChanged(func(context *guigui.Context, value bool) {
 		if value {
@@ -32,7 +62,6 @@ func (r *Root) Build(context *guigui.Context, adder *guigui.ChildAdder) error {
 			context.SetPreferredColorMode(ebiten.ColorModeLight)
 		}
 	})
-	adder.AddWidget(&r.toggle)
 
 	if !r.close.HasIcon() {
 		err := r.close.Load("icons/close.png", nil)
@@ -40,12 +69,51 @@ func (r *Root) Build(context *guigui.Context, adder *guigui.ChildAdder) error {
 			return err
 		}
 	}
-	adder.AddWidget(&r.close)
 	r.info_tip.SetText("This is a infomation hint.")
-	adder.AddWidget(&r.info_tip)
 
-	r.btn.Widget().SetText("Hello")
-	adder.AddWidget(&r.btn)
+	if r.image == nil {
+		img, err := load_image()
+		if err != nil {
+			panic(err.Error())
+		}
+		r.image = img
+	}
+
+	r.image_wdiget.SetFixedWidth(basicwidget.UnitSize(context) * 8)
+	r.image_wdiget.Widget().Widget().SetImage(r.image)
+	r.load_image_toggle.Toggle().OnValueChanged(func(context *guigui.Context, value bool) {
+		r.image_wdiget.Widget().SetLoading(value)
+	})
+
+	r.labeled_toggle_text.SetValue("Labeled toggle")
+	r.icon_widget_text.SetValue("Icon widget")
+	r.infotip_widget_text.SetValue("Infotip widget")
+	r.skeleton_loader_text.SetValue("Skeleton loader")
+	r.set_image_load_text.SetValue("Set image loading state")
+
+	r.form.SetItems([]basicwidget.FormItem{
+		{
+			PrimaryWidget:   &r.labeled_toggle_text,
+			SecondaryWidget: &r.toggle,
+		},
+		{
+			PrimaryWidget:   &r.icon_widget_text,
+			SecondaryWidget: &r.close,
+		},
+		{
+			PrimaryWidget:   &r.infotip_widget_text,
+			SecondaryWidget: &r.info_tip,
+		},
+		{
+			PrimaryWidget:   &r.skeleton_loader_text,
+			SecondaryWidget: &r.image_wdiget,
+		},
+		{
+			PrimaryWidget:   &r.set_image_load_text,
+			SecondaryWidget: &r.load_image_toggle,
+		},
+	})
+	adder.AddWidget(&r.form)
 	return nil
 }
 
@@ -53,26 +121,15 @@ func (r *Root) Layout(context *guigui.Context, widgetBounds *guigui.WidgetBounds
 	layouter.LayoutWidget(&r.background, widgetBounds.Bounds())
 
 	u := basicwidget.UnitSize(context)
-	if len(r.layout.Items) == 0 {
-		r.layout = guigui.LinearLayout{
-			Gap:       u / 4,
-			Padding:   guigui.Padding{u, u, u, u},
-			Direction: guigui.LayoutDirectionHorizontal,
-			Items: []guigui.LinearLayoutItem{
-				{
-					Widget: &r.close,
-				},
-				{
-					Widget: &r.info_tip,
-				},
-				{
-					Widget: &r.toggle,
-				},
-				{
-					Widget: &r.btn,
-				},
+	r.layout = guigui.LinearLayout{
+		Gap:       u / 4,
+		Padding:   guigui.Padding{u, u, u, u},
+		Direction: guigui.LayoutDirectionVertical,
+		Items: []guigui.LinearLayoutItem{
+			{
+				Widget: &r.form,
 			},
-		}
+		},
 	}
 
 	r.layout.LayoutWidgets(context, widgetBounds.Bounds(), layouter)
