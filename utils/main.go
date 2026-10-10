@@ -30,6 +30,18 @@ func MediumGap(context *guigui.Context) int {
 	return u / 2
 }
 
+func SmallBorderRadius(context *guigui.Context) int {
+	return SmallPadding(context).Start
+}
+
+func MediumBorderRadius(context *guigui.Context) int {
+	return MediumPadding(context).Start
+}
+
+func LargeBorderRadius(context *guigui.Context) int {
+	return LargePadding(context).Start
+}
+
 func LargeGap(context *guigui.Context) int {
 	u := basicwidget.UnitSize(context)
 	return u
