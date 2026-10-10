@@ -51,6 +51,10 @@ type Root struct {
 	infinite_loading_bar_text basicwidget.Text
 	infinite_loadingbar       widgets.InfiniteLoadingBar
 
+	action_notification_text basicwidget.Text
+	action_notification_btn  basicwidget.Button
+	action_notification      widgets.ActionNotification
+
 	layout guigui.LinearLayout
 }
 
@@ -96,6 +100,8 @@ func (r *Root) Build(context *guigui.Context, adder *guigui.ChildAdder) error {
 
 	r.infinite_loading_bar_text.SetValue("Infinite loadingbar")
 
+	r.action_notification_text.SetValue("Action notification")
+
 	r.form.SetItems([]basicwidget.FormItem{
 		{
 			PrimaryWidget:   &r.labeled_toggle_text,
@@ -120,6 +126,10 @@ func (r *Root) Build(context *guigui.Context, adder *guigui.ChildAdder) error {
 		{
 			PrimaryWidget:   &r.infinite_loading_bar_text,
 			SecondaryWidget: &r.infinite_loadingbar,
+		},
+		{
+			PrimaryWidget:   &r.action_notification_text,
+			SecondaryWidget: &r.action_notification,
 		},
 	})
 	adder.AddWidget(&r.form)
