@@ -1,7 +1,8 @@
 package widgets
 
 // Toggle text
-// Loading bar
+// Infinite Loading bar
+// Skeleton loader (224-255)
 // Info hint
 // Tabs
 // ActionNotification

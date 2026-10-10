@@ -17,6 +17,8 @@ type Root struct {
 	close    widgets.Icon
 	info_tip widgets.InfoHint
 
+	btn widgets.SkeletonLoader[*basicwidget.Button]
+
 	layout guigui.LinearLayout
 }
 
@@ -42,6 +44,8 @@ func (r *Root) Build(context *guigui.Context, adder *guigui.ChildAdder) error {
 	r.info_tip.SetText("This is a infomation hint.")
 	adder.AddWidget(&r.info_tip)
 
+	r.btn.Widget().SetText("Hello")
+	adder.AddWidget(&r.btn)
 	return nil
 }
 
@@ -63,6 +67,9 @@ func (r *Root) Layout(context *guigui.Context, widgetBounds *guigui.WidgetBounds
 				},
 				{
 					Widget: &r.toggle,
+				},
+				{
+					Widget: &r.btn,
 				},
 			},
 		}
