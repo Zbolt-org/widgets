@@ -26,6 +26,7 @@ func (infohint *InfoHint) Build(context *guigui.Context, adder *guigui.ChildAdde
 	adder.AddWidget(&infohint.tooltip_area)
 
 	infohint.infohint_icon.Load("icons/info-tip.png", nil, image.Point{})
+	infohint.infohint_icon.SetClickable(true)
 	adder.AddWidget(&infohint.infohint_icon)
 	return nil
 }

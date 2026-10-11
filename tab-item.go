@@ -63,6 +63,7 @@ func (d *tab_item_widget[T]) Build(context *guigui.Context, adder *guigui.ChildA
 
 	if d.data.Closable {
 		d.close_icon.Load("icons/close.png", nil, icon_size)
+		d.close_icon.SetClickable(true)
 		adder.AddWidget(&d.close_icon)
 	}
 
@@ -139,6 +140,13 @@ func (d *tab_item_widget[T]) Draw(context *guigui.Context, widgetBounds *guigui.
 
 func (d *tab_item_widget[T]) Measure(context *guigui.Context, _ guigui.Constraints) image.Point {
 	return d.layout.Measure(context, guigui.Constraints{})
+}
+
+func (d *tab_item_widget[T]) CursorShape(context *guigui.Context, widgetBounds *guigui.WidgetBounds) (ebiten.CursorShapeType, bool) {
+	if widgetBounds.IsHitAtCursor() {
+		return ebiten.CursorShapePointer, true
+	}
+	return 0, false
 }
 
 // TEMP: Remove this later.

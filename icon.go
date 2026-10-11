@@ -30,6 +30,16 @@ type Icon struct {
 		fs   fs.FS
 		size image.Point
 	}
+
+	clickable bool
+}
+
+func (icon_ref *Icon) Clickable() bool {
+	return icon_ref.clickable
+}
+
+func (icon_ref *Icon) SetClickable(clickable bool) {
+	icon_ref.clickable = clickable
 }
 
 func (icon_ref *Icon) HasIcon() bool {
@@ -107,4 +117,11 @@ func (icon_ref *Icon) Measure(context *guigui.Context, constraints guigui.Constr
 		return image.Pt(line_height, line_height)
 	}
 	return icon_ref.size
+}
+
+func (icon_ref *Icon) CursorShape(context *guigui.Context, widgetBounds *guigui.WidgetBounds) (ebiten.CursorShapeType, bool) {
+	if icon_ref.clickable && widgetBounds.IsHitAtCursor() {
+		return ebiten.CursorShapePointer, true
+	}
+	return 0, false
 }
