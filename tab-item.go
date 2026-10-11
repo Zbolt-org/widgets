@@ -20,6 +20,7 @@ type TabItem[T comparable] struct {
 	Text              string
 	Icon              TabIcon
 	Closable, Movable bool
+	Widget            guigui.Widget
 	Value             T
 }
 
@@ -37,11 +38,6 @@ type tab_item_widget[T comparable] struct {
 	icon       Icon
 	text       basicwidget.Text
 	close_icon Icon
-}
-
-// TEMP: remove this
-func (d *tab_item_widget[T]) SetData(data TabItem[T]) {
-	d.set_data(data)
 }
 
 func (d *tab_item_widget[T]) set_data(data TabItem[T]) {
@@ -148,6 +144,3 @@ func (d *tab_item_widget[T]) CursorShape(context *guigui.Context, widgetBounds *
 	}
 	return 0, false
 }
-
-// TEMP: Remove this later.
-type TabWidget[T comparable] = tab_item_widget[T]
