@@ -12,26 +12,29 @@ import (
 type tab_bar_widget[T comparable] struct {
 	guigui.DefaultWidget
 
-	tab_items guigui.WidgetSlice[*tab_item_widget[T]]
-	layout    guigui.LinearLayout
+	tab_data_items []TabItem[T]
+	tab_items      guigui.WidgetSlice[*tab_item_widget[T]]
+	layout         guigui.LinearLayout
 }
 
 // on_close
-// on_click
 // on_switch
+// on_widget_select
+// select_item
+// selected_item
 
 func (d *tab_bar_widget[T]) SetTabItems(items []TabItem[T]) {
-	d.tab_items.SetLen(len(items))
-
-	for i, tab_item_widget := range d.tab_items.All() {
-		tab_item_widget.set_data(items[i])
-	}
+	d.tab_data_items = items
 }
 
 func (d *tab_bar_widget[T]) Build(context *guigui.Context, adder *guigui.ChildAdder) error {
-	for _, tab_item_widget := range d.tab_items.All() {
+	d.tab_items.SetLen(len(d.tab_data_items))
+
+	for i, tab_item_widget := range d.tab_items.All() {
+		tab_item_widget.set_data(d.tab_data_items[i])
 		adder.AddWidget(tab_item_widget)
 	}
+
 	return nil
 }
 
