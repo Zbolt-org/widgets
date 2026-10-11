@@ -112,8 +112,8 @@ func (d *tab_item_widget[T]) Layout(context *guigui.Context, widgetBounds *guigu
 	padding := guigui.Padding{
 		Top:    u / 6,
 		Bottom: u / 6,
-		Start:  u / 3,
-		End:    u / 3,
+		Start:  u / 4,
+		End:    u / 4,
 	}
 
 	d.layout = guigui.LinearLayout{
@@ -131,7 +131,7 @@ func (d *tab_item_widget[T]) Draw(context *guigui.Context, widgetBounds *guigui.
 	//border_type := basicwidgetdraw.RoundedRectBorderTypeRegular
 
 	background_clr := basicwidgetdraw.BackgroundSecondaryColor(context.ColorMode())
-	r := utils.SmallBorderRadius(context)
+	r := utils.XSmallBorderRadius(context)
 	basicwidgetdraw.DrawRoundedRect(context, dst, widgetBounds.Bounds(), background_clr, r)
 
 	// TODO: change the background color based on cursor hover & selected & drag.
