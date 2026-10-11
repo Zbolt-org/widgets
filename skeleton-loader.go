@@ -86,6 +86,10 @@ func (d *SkeletonLoader[T]) Draw(context *guigui.Context, widgetBounds *guigui.W
 
 	clr := color.RGBA{clr_diffrence, clr_diffrence, clr_diffrence, 255}
 	basicwidgetdraw.DrawRoundedRect(context, dst, b, clr, utils.SmallBorderRadius(context))
+
+	clr1, clr2 := basicwidgetdraw.BorderColors(context.ColorMode(), basicwidgetdraw.RoundedRectBorderTypeRegular)
+	width := 1 * float32(context.Scale())
+	basicwidgetdraw.DrawRoundedRectBorder(context, dst, b, clr1, clr2, utils.SmallBorderRadius(context), width, basicwidgetdraw.RoundedRectBorderTypeRegular)
 }
 
 func (d *SkeletonLoader[T]) Measure(context *guigui.Context, constraints guigui.Constraints) image.Point {
