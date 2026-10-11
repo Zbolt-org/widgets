@@ -14,6 +14,7 @@ import (
 //go:embed icons/*
 var icon_directory embed.FS
 
+// TODO: Add an transparency option for icon
 type Icon struct {
 	guigui.DefaultWidget
 
@@ -22,24 +23,34 @@ type Icon struct {
 	is_black     bool
 	ebiten_img   *ebiten.Image
 	image_widget basicwidget.Image
+
+	load_inputs struct {
+		icon string
+		fs   fs.FS
+		size image.Point
+	}
 }
 
 func (icon_ref *Icon) HasIcon() bool {
 	return icon_ref.ebiten_img != nil
 }
 
-func (icon_ref *Icon) Load(icon string, fs fs.FS, size ...image.Point) error {
+func (icon_ref *Icon) Load(icon string, fs fs.FS, size image.Point) error {
+	if icon_ref.load_inputs.icon == icon && icon_ref.load_inputs.fs == fs && icon_ref.load_inputs.size == size {
+		return nil
+	}
+	icon_ref.load_inputs.icon = icon
+	icon_ref.load_inputs.fs = fs
+	icon_ref.size = size
+
 	if fs == nil {
 		fs = icon_directory
 	}
-	// TODO: Consider a cach
+	if size.X != 0 && size.Y != 0 {
+		icon_ref.size = size
 
-	if len(size) > 1 {
-		panic("Extra arguments")
-	} else if len(size) == 1 {
-		icon_ref.size = size[0]
 	}
-
+	// TODO: Consider a cache
 	file, err := fs.Open(icon)
 	if err != nil {
 		return err
@@ -91,7 +102,7 @@ func (icon_ref *Icon) Layout(context *guigui.Context, widgetBounds *guigui.Widge
 }
 
 func (icon_ref *Icon) Measure(context *guigui.Context, constraints guigui.Constraints) image.Point {
-	if icon_ref.size.X == 0 || icon_ref.size.Y == 0 {
+	if icon_ref.size.X == 0 && icon_ref.size.Y == 0 {
 		line_height := basicwidget.LineHeight(context)
 		return image.Pt(line_height, line_height)
 	}

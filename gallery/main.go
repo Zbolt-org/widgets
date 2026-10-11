@@ -1,6 +1,7 @@
 package main
 
 import (
+	"image"
 	"image/jpeg"
 	"log"
 	"os"
@@ -69,11 +70,9 @@ func (r *Root) Build(context *guigui.Context, adder *guigui.ChildAdder) error {
 		}
 	})
 
-	if !r.close.HasIcon() {
-		err := r.close.Load("icons/close.png", nil)
-		if err != nil {
-			return err
-		}
+	err := r.close.Load("icons/close.png", nil, image.Point{})
+	if err != nil {
+		return err
 	}
 	r.info_tip.SetText("This is a infomation hint.")
 
