@@ -32,6 +32,7 @@ func (icon_ref *Icon) Load(icon string, fs fs.FS, size ...image.Point) error {
 	if fs == nil {
 		fs = icon_directory
 	}
+	// TODO: Consider a cach
 
 	if len(size) > 1 {
 		panic("Extra arguments")
