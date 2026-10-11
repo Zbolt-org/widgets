@@ -41,8 +41,7 @@ func (d *tab_bar_widget[T]) Build(context *guigui.Context, adder *guigui.ChildAd
 func (d *tab_bar_widget[T]) Layout(context *guigui.Context, widgetBounds *guigui.WidgetBounds, layouter *guigui.ChildLayouter) {
 	d.layout = guigui.LinearLayout{
 		Direction: guigui.LayoutDirectionHorizontal,
-		Padding:   utils.SmallPadding(context),
-		Gap:       utils.XSmallGap(context),
+		Padding:   utils.XSmallPadding(context),
 		Items:     make([]guigui.LinearLayoutItem, d.tab_items.Len(), d.tab_items.Len()+1),
 	}
 
@@ -57,11 +56,14 @@ func (d *tab_bar_widget[T]) Layout(context *guigui.Context, widgetBounds *guigui
 }
 
 func (d *tab_bar_widget[T]) Draw(context *guigui.Context, widgetBounds *guigui.WidgetBounds, dst *ebiten.Image) {
-	border_type := basicwidgetdraw.RoundedRectBorderTypeRegular
 	radius := utils.SmallBorderRadius(context)
-	clr1, clr2 := basicwidgetdraw.BorderColors(context.ColorMode(), border_type)
+	background_clr := basicwidgetdraw.BackgroundSecondaryColor(context.ColorMode())
+	basicwidgetdraw.DrawRoundedRect(context, dst, widgetBounds.Bounds(), background_clr, radius)
 
-	basicwidgetdraw.DrawRoundedRectBorder(context, dst, widgetBounds.Bounds(), clr1, clr2, radius, 1, border_type)
+	border_type := basicwidgetdraw.RoundedRectBorderTypeRegular
+	clr1, clr2 := basicwidgetdraw.BorderColors(context.ColorMode(), border_type)
+	width := 1 * float32(context.Scale())
+	basicwidgetdraw.DrawRoundedRectBorder(context, dst, widgetBounds.Bounds(), clr1, clr2, radius, width, border_type)
 }
 
 func (d *tab_bar_widget[T]) Measure(context *guigui.Context, constraints guigui.Constraints) image.Point {

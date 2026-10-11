@@ -55,8 +55,8 @@ type Root struct {
 	text_input_text basicwidget.Text
 	text_input      widgets.TextInput
 
-	tab_widget widgets.TabWidget[struct{}]
-	layout     guigui.LinearLayout
+	tab_container widgets.TabContainer[struct{}]
+	layout        guigui.LinearLayout
 }
 
 func (r *Root) Build(context *guigui.Context, adder *guigui.ChildAdder) error {
@@ -133,12 +133,21 @@ func (r *Root) Build(context *guigui.Context, adder *guigui.ChildAdder) error {
 	})
 	adder.AddWidget(&r.form)
 
-	r.tab_widget.SetData(widgets.TabItem[struct{}]{
-		Text:     "Hello world",
-		Closable: true,
-		Icon:     widgets.TabIcon{Icon: "icons/info-tip.png"},
+	r.tab_container.SetTabItems([]widgets.TabItem[struct{}]{
+		{
+			Text: "Tab 1",
+		},
+		{
+			Text: "Tab 2",
+		},
+		{
+			Text: "Tab 3",
+		},
+		{
+			Text: "Tab 4",
+		},
 	})
-	adder.AddWidget(&r.tab_widget)
+	adder.AddWidget(&r.tab_container)
 	return nil
 }
 
@@ -155,7 +164,7 @@ func (r *Root) Layout(context *guigui.Context, widgetBounds *guigui.WidgetBounds
 				Widget: &r.form,
 			},
 			{
-				Widget: &r.tab_widget,
+				Widget: &r.tab_container,
 			},
 		},
 	}

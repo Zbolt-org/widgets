@@ -28,7 +28,7 @@ func (d *TabContainer[T]) Build(context *guigui.Context, adder *guigui.ChildAdde
 
 func (d *TabContainer[T]) Layout(context *guigui.Context, widgetBounds *guigui.WidgetBounds, layouter *guigui.ChildLayouter) {
 	d.layout = guigui.LinearLayout{
-		Direction: guigui.LayoutDirectionHorizontal,
+		Direction: guigui.LayoutDirectionVertical,
 		Gap:       utils.SmallGap(context),
 		Items: []guigui.LinearLayoutItem{
 			{
