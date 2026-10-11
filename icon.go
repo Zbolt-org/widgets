@@ -15,6 +15,7 @@ import (
 var icon_directory embed.FS
 
 // TODO: Add an transparency option for icon
+// TODO: Add a cache for icons.
 type Icon struct {
 	guigui.DefaultWidget
 
@@ -41,14 +42,13 @@ func (icon_ref *Icon) Load(icon string, fs fs.FS, size image.Point) error {
 	}
 	icon_ref.load_inputs.icon = icon
 	icon_ref.load_inputs.fs = fs
-	icon_ref.size = size
+	icon_ref.load_inputs.size = size
 
 	if fs == nil {
 		fs = icon_directory
 	}
 	if size.X != 0 && size.Y != 0 {
 		icon_ref.size = size
-
 	}
 	// TODO: Consider a cache
 	file, err := fs.Open(icon)

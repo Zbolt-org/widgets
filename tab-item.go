@@ -11,18 +11,20 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
+type TabIcon struct {
+	Icon string
+	Fs   fs.FS
+}
+
 type TabItem[T comparable] struct {
-	Text string
-	Icon struct {
-		icon string
-		fs   fs.FS
-	}
+	Text              string
+	Icon              TabIcon
 	Closable, Movable bool
 	Value             T
 }
 
 func (t *TabItem[T]) is_icon() bool {
-	return t.Icon.icon != ""
+	return t.Icon.Icon != ""
 }
 
 type tab_item_widget[T comparable] struct {
@@ -37,6 +39,11 @@ type tab_item_widget[T comparable] struct {
 	close_icon Icon
 }
 
+// TEMP: remove this
+func (d *tab_item_widget[T]) SetData(data TabItem[T]) {
+	d.set_data(data)
+}
+
 func (d *tab_item_widget[T]) set_data(data TabItem[T]) {
 	d.data = data
 }
@@ -45,50 +52,74 @@ func (d *tab_item_widget[T]) get_data() TabItem[T] {
 	return d.data
 }
 
+func (d *tab_item_widget[T]) icon_size(context *guigui.Context) image.Point {
+	lh := basicwidget.LineHeight(context)
+	lh = (lh / 2) + (lh / 5)
+	return image.Pt(lh, lh)
+}
+
 func (d *tab_item_widget[T]) Build(context *guigui.Context, adder *guigui.ChildAdder) error {
+	icon_size := d.icon_size(context)
+
 	if d.data.Closable {
-		d.close_icon.Load("icons/close.png", nil, image.Point{})
+		d.close_icon.Load("icons/close.png", nil, icon_size)
 		adder.AddWidget(&d.close_icon)
 	}
 
 	if d.data.is_icon() {
-		d.icon.Load(d.data.Icon.icon, d.data.Icon.fs, image.Point{})
+		d.icon.Load(d.data.Icon.Icon, d.data.Icon.Fs, icon_size)
 		adder.AddWidget(&d.icon)
 	}
 
 	// TODO: bold the text if the tab is selected.
 	d.text.SetValue(d.data.Text)
+	d.text.SetEllipsisString("...")
 	adder.AddWidget(&d.text)
 	return nil
 }
 
 func (d *tab_item_widget[T]) Layout(context *guigui.Context, widgetBounds *guigui.WidgetBounds, layouter *guigui.ChildLayouter) {
+	text_width := d.text.Measure(context, guigui.FixedHeightConstraints(basicwidget.LineHeight(context))).X
+	max_text_width := basicwidget.UnitSize(context) * 12
+	text_width = min(text_width, max_text_width)
+
 	items := []guigui.LinearLayoutItem{
 		{
 			Widget: &d.text,
-			Size:   guigui.FlexibleSize(1),
+			Size:   guigui.FixedSize(text_width),
 		},
 	}
 
-	if d.data.Closable {
+	if d.data.is_icon() {
 		item := []guigui.LinearLayoutItem{
 			{
-				Widget: &d.close_icon,
+				Size:   guigui.FixedSize(d.icon.Measure(context, guigui.Constraints{}).X),
+				Widget: &d.icon,
 			},
 		}
 		items = append(item, items...)
+
 	}
 
-	if d.data.is_icon() {
+	if d.data.Closable {
 		items = append(items, guigui.LinearLayoutItem{
-			Widget: &d.icon,
+			Size:   guigui.FixedSize(d.close_icon.Measure(context, guigui.Constraints{}).X),
+			Widget: &d.close_icon,
 		})
+	}
+
+	u := basicwidget.UnitSize(context)
+	padding := guigui.Padding{
+		Top:    u / 6,
+		Bottom: u / 6,
+		Start:  u / 3,
+		End:    u / 3,
 	}
 
 	d.layout = guigui.LinearLayout{
 		Direction: guigui.LayoutDirectionHorizontal,
-		Gap:       utils.SmallGap(context),
-		Padding:   utils.SmallPadding(context),
+		Gap:       utils.XSmallGap(context),
+		Padding:   padding,
 		Items:     items,
 	}
 
@@ -99,7 +130,7 @@ func (d *tab_item_widget[T]) Draw(context *guigui.Context, widgetBounds *guigui.
 	//clr1, clr2 := basicwidgetdraw.BorderColors(context.ColorMode(), border_type)
 	//border_type := basicwidgetdraw.RoundedRectBorderTypeRegular
 
-	background_clr := basicwidgetdraw.BackgroundColor(context.ColorMode())
+	background_clr := basicwidgetdraw.BackgroundSecondaryColor(context.ColorMode())
 	r := utils.SmallBorderRadius(context)
 	basicwidgetdraw.DrawRoundedRect(context, dst, widgetBounds.Bounds(), background_clr, r)
 
@@ -109,3 +140,6 @@ func (d *tab_item_widget[T]) Draw(context *guigui.Context, widgetBounds *guigui.
 func (d *tab_item_widget[T]) Measure(context *guigui.Context, _ guigui.Constraints) image.Point {
 	return d.layout.Measure(context, guigui.Constraints{})
 }
+
+// TEMP: Remove this later.
+type TabWidget[T comparable] = tab_item_widget[T]
