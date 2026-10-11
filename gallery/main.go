@@ -51,6 +51,9 @@ type Root struct {
 	infinite_loading_bar_text basicwidget.Text
 	infinite_loadingbar       widgets.InfiniteLoadingBar
 
+	text_input_text basicwidget.Text
+	text_input      widgets.TextInput
+
 	layout guigui.LinearLayout
 }
 
@@ -96,6 +99,8 @@ func (r *Root) Build(context *guigui.Context, adder *guigui.ChildAdder) error {
 
 	r.infinite_loading_bar_text.SetValue("Infinite loadingbar")
 
+	r.text_input_text.SetValue("TextInput widget with a contextmenu")
+
 	r.form.SetItems([]basicwidget.FormItem{
 		{
 			PrimaryWidget:   &r.labeled_toggle_text,
@@ -120,6 +125,10 @@ func (r *Root) Build(context *guigui.Context, adder *guigui.ChildAdder) error {
 		{
 			PrimaryWidget:   &r.infinite_loading_bar_text,
 			SecondaryWidget: &r.infinite_loadingbar,
+		},
+		{
+			PrimaryWidget:   &r.text_input_text,
+			SecondaryWidget: &r.text_input,
 		},
 	})
 	adder.AddWidget(&r.form)
