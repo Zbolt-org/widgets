@@ -2,11 +2,9 @@ package widgets
 
 import (
 	"image"
-	"log"
 
 	"github.com/guigui-gui/guigui"
 	"github.com/guigui-gui/guigui/basicwidget"
-	"github.com/guigui-gui/guigui/clipboard"
 )
 
 type context_menu_item = int
@@ -15,7 +13,6 @@ const (
 	ContextMenuItemCopy context_menu_item = iota + 0
 	ContextMenuItemPaste
 	ContextMenuItemCut
-	ContextMenuItemDelete
 	ContextMenuItemSelectAll
 	ContextMenuItemUndo
 	ContextMenuItemRedo
@@ -29,12 +26,13 @@ const (
 	TextContentHTML
 )
 
+// TextInput is a widget for text input with context menu support.
 type TextInput struct {
 	guigui.DefaultWidget
 
 	text_input                  basicwidget.TextInput
 	context_menu_area           basicwidget.ContextMenuArea[int]
-	context_menu_items_disables [7]bool
+	context_menu_items_disables [6]bool
 
 	additional_contextmenu_items []basicwidget.PopupMenuItem[int]
 	on_additional_item_selected  func(context *guigui.Context, index int)
@@ -54,15 +52,17 @@ func (d *TextInput) TextContent() TextContent {
 	return d.text_content
 }
 
+// OnAdditionalItemSelected sets the callback for when an additional context menu item is selected.
 func (d *TextInput) OnAdditionalItemSelected(fn func(context *guigui.Context, index int)) {
 	d.on_additional_item_selected = fn
 }
 
+// SetAditionalItems sets the additional context menu items.
 func (d *TextInput) SetAditionalItems(addition_items []basicwidget.PopupMenuItem[int]) {
 	d.additional_contextmenu_items = addition_items
 }
 
-// Only for defualt items.
+// Only for defualt items. Sets whether the item is disabled.
 func (d *TextInput) SetDisable(item context_menu_item, disable bool) {
 	if item >= DefualtContextMenuItemEnd {
 		panic("SetDisable only valid for defualt context menu items")
@@ -70,7 +70,7 @@ func (d *TextInput) SetDisable(item context_menu_item, disable bool) {
 	d.context_menu_items_disables[item] = disable
 }
 
-// Only for defualt items.
+// Only for defualt items. Returns whether the item is disabled.
 func (d *TextInput) Disable(item context_menu_item) bool {
 	if item >= DefualtContextMenuItemEnd {
 		panic("SetDisable only valid for defualt context menu items")
@@ -100,11 +100,6 @@ func (d *TextInput) Build(context *guigui.Context, adder *guigui.ChildAdder) err
 			KeyText:  "Ctrl+X",
 			Disabled: d.context_menu_items_disables[ContextMenuItemCut],
 			Value:    ContextMenuItemCut,
-		},
-		{
-			Text:     "Delete",
-			Disabled: d.context_menu_items_disables[ContextMenuItemDelete],
-			Value:    ContextMenuItemDelete,
 		},
 		{
 			Text:     "Select All",
@@ -145,26 +140,22 @@ func (d *TextInput) Build(context *guigui.Context, adder *guigui.ChildAdder) err
 		switch index {
 		case ContextMenuItemCopy:
 			text_input := d.TextInput()
-			start, end := text_input.Selection()
-			selection := text_input.Value()[start:end]
-
-			var clipboard_content clipboard.Contents
-			if d.text_content == TextContentPlainText {
-				clipboard_content = clipboard.Contents{
-					Text: []byte(selection),
-				}
-			} else {
-				clipboard_content = clipboard.Contents{
-					HTML: []byte(selection),
-				}
-			}
-
-			go func(content clipboard.Contents) {
-				err := clipboard.Write(content)
-				if err != nil {
-					log.Println(err.Error())
-				}
-			}(clipboard_content)
+			text_input.Copy()
+		case ContextMenuItemPaste:
+			text_input := d.TextInput()
+			text_input.Paste()
+		case ContextMenuItemCut:
+			text_input := d.TextInput()
+			text_input.Cut()
+		case ContextMenuItemSelectAll:
+			text_input := d.TextInput()
+			text_input.SelectAll()
+		case ContextMenuItemUndo:
+			text_input := d.TextInput()
+			text_input.Undo()
+		case ContextMenuItemRedo:
+			text_input := d.TextInput()
+			text_input.Redo()
 		}
 	})
 	adder.AddWidget(&d.context_menu_area)
