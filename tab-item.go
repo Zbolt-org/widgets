@@ -2,6 +2,7 @@ package widgets
 
 import (
 	"image"
+	"image/color"
 	"io/fs"
 	"widgets/utils"
 
@@ -38,6 +39,8 @@ type tab_item_widget[T comparable] struct {
 	icon       Icon
 	text       basicwidget.Text
 	close_icon Icon
+
+	left_rounded, right_rounded bool
 }
 
 func (d *tab_item_widget[T]) set_data(data TabItem[T]) {
@@ -75,6 +78,21 @@ func (d *tab_item_widget[T]) Build(context *guigui.Context, adder *guigui.ChildA
 	return nil
 }
 
+func tab_item_padding(context *guigui.Context) guigui.Padding {
+	u := basicwidget.UnitSize(context)
+	return guigui.Padding{
+		Top:    u / 8,
+		Bottom: u / 8,
+		Start:  u / 3,
+		End:    u / 3,
+	}
+}
+
+func tab_item_radius(context *guigui.Context) int {
+	padding := tab_item_padding(context)
+	return (padding.Start + padding.Top) / 2
+}
+
 func (d *tab_item_widget[T]) Layout(context *guigui.Context, widgetBounds *guigui.WidgetBounds, layouter *guigui.ChildLayouter) {
 	text_width := d.text.Measure(context, guigui.FixedHeightConstraints(basicwidget.LineHeight(context))).X
 	max_text_width := basicwidget.UnitSize(context) * 12
@@ -105,14 +123,7 @@ func (d *tab_item_widget[T]) Layout(context *guigui.Context, widgetBounds *guigu
 		})
 	}
 
-	u := basicwidget.UnitSize(context)
-	padding := guigui.Padding{
-		Top:    u / 6,
-		Bottom: u / 6,
-		Start:  u / 4,
-		End:    u / 4,
-	}
-
+	padding := tab_item_padding(context)
 	d.layout = guigui.LinearLayout{
 		Direction: guigui.LayoutDirectionHorizontal,
 		Gap:       utils.XSmallGap(context),
@@ -123,13 +134,33 @@ func (d *tab_item_widget[T]) Layout(context *guigui.Context, widgetBounds *guigu
 	d.layout.LayoutWidgets(context, widgetBounds.Bounds(), layouter)
 }
 
+func (d *tab_item_widget[T]) enable_rounded_corners(left, right bool) {
+	d.left_rounded = left
+	d.right_rounded = right
+}
+
+func (d *tab_item_widget[T]) corners() basicwidgetdraw.Corners {
+	corners := basicwidgetdraw.Corners{}
+	if !d.left_rounded {
+		corners.TopStart = true
+		corners.BottomStart = true
+	}
+
+	if !d.right_rounded {
+		corners.TopEnd = true
+		corners.BottomEnd = true
+	}
+	return corners
+}
+
 func (d *tab_item_widget[T]) Draw(context *guigui.Context, widgetBounds *guigui.WidgetBounds, dst *ebiten.Image) {
 	//clr1, clr2 := basicwidgetdraw.BorderColors(context.ColorMode(), border_type)
 	//border_type := basicwidgetdraw.RoundedRectBorderTypeRegular
 
-	background_clr := basicwidgetdraw.BackgroundSecondaryColor(context.ColorMode())
-	r := utils.XSmallBorderRadius(context)
-	basicwidgetdraw.DrawRoundedRect(context, dst, widgetBounds.Bounds(), background_clr, r)
+	background_clr := color.RGBA{255, 0, 0, 255} //basicwidgetdraw.BackgroundSecondaryColor(context.ColorMode())
+	r := tab_item_radius(context)                //basicwidget.UnitSize(context) / 6
+	//basicwidgetdraw.DrawRoundedRect(context, dst, widgetBounds.Bounds(), background_clr, r)
+	basicwidgetdraw.DrawRoundedRectWithSharpCorners(context, dst, widgetBounds.Bounds(), background_clr, r, d.corners())
 
 	// TODO: change the background color based on cursor hover & selected & drag.
 }
