@@ -72,9 +72,38 @@ func (icon_ref *Icon) Load(icon string, fs fs.FS, size image.Point) error {
 		return err
 	}
 	icon_ref.ebiten_img = ebiten.NewImageFromImage(img)
+	//change_color(icon_ref.ebiten_img, basicwidgetdraw.TextColor(ebiten.ColorModeLight, true))
 	return nil
+
 }
 
+/*
+	func color_to_rgba_8bit(clr color.Color) (uint8, uint8, uint8, uint8) {
+		r, g, b, a := clr.RGBA()
+		return uint8(r), uint8(g), uint8(b), uint8(a)
+	}
+
+	func change_color(img *ebiten.Image, clr color.Color) {
+		bounds := img.Bounds()
+		pixels := make([]byte, 4*bounds.Dx()*bounds.Dy())
+		img.ReadPixels(pixels)
+		r, g, b, a := color_to_rgba_8bit(clr)
+		transparency_diff := 255 - a
+		for i := 4; i <= len(pixels); i += 4 {
+			if pixels[i-1] == 0 {
+				continue
+			}
+			rgba := pixels[i-4 : i]
+			rgba[0] = r
+			rgba[1] = g
+			rgba[2] = b
+			if rgba[3] >= transparency_diff {
+				rgba[3] -= transparency_diff
+			}
+		}
+		img.WritePixels(pixels)
+	}
+*/
 func inverse_color(img *ebiten.Image) {
 	bounds := img.Bounds()
 	pixels := make([]byte, 4*bounds.Dx()*bounds.Dy())

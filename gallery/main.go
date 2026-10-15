@@ -135,16 +135,35 @@ func (r *Root) Build(context *guigui.Context, adder *guigui.ChildAdder) error {
 
 	r.tab_container.SetTabItems([]widgets.TabItem[struct{}]{
 		{
-			Text: "Tab 1",
+			Icon: widgets.TabIcon{
+				Icon: "icons/info-tip.png",
+			},
+			Closable: true,
+			Text:     "Tab 1",
 		},
 		{
-			Text: "Tab 2",
+
+			Icon: widgets.TabIcon{
+				Icon: "icons/info-tip.png",
+			},
+			Closable: true,
+			Text:     "Tab 2",
 		},
 		{
-			Text: "Tab 3",
+
+			Icon: widgets.TabIcon{
+				Icon: "icons/info-tip.png",
+			},
+			Closable: true,
+			Text:     "Tab 3",
 		},
 		{
-			Text: "Tab 4",
+
+			Icon: widgets.TabIcon{
+				Icon: "icons/info-tip.png",
+			},
+			Closable: true,
+			Text:     "Tab 4",
 		},
 	})
 	adder.AddWidget(&r.tab_container)

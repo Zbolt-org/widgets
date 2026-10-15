@@ -2,7 +2,7 @@ package widgets
 
 import (
 	"image"
-	"image/color"
+	"widgets/utils"
 
 	"github.com/guigui-gui/guigui"
 	"github.com/guigui-gui/guigui/basicwidget/basicwidgetdraw"
@@ -33,7 +33,6 @@ func (d *tab_bar_widget[T]) Build(context *guigui.Context, adder *guigui.ChildAd
 	d.tab_items.SetLen(len(d.tab_data_items))
 
 	for i, tab_item_widget := range d.tab_items.All() {
-		d.tab_items.At(i).enable_rounded_corners(false, false)
 		tab_item_widget.set_data(d.tab_data_items[i])
 		adder.AddWidget(tab_item_widget)
 	}
@@ -46,6 +45,7 @@ func (d *tab_bar_widget[T]) Layout(context *guigui.Context, widgetBounds *guigui
 	d.layout = guigui.LinearLayout{
 		Direction: guigui.LayoutDirectionHorizontal,
 		Padding:   guigui.Padding{padding, padding, padding, padding},
+		Gap:       utils.XSmallGap(context),
 		Items:     make([]guigui.LinearLayoutItem, d.tab_items.Len(), d.tab_items.Len()+1),
 	}
 
@@ -57,35 +57,20 @@ func (d *tab_bar_widget[T]) Layout(context *guigui.Context, widgetBounds *guigui
 	})
 
 	b := widgetBounds.Bounds()
-	if d.tab_items.Len() > 0 {
-		last_tab_index := d.tab_items.Len() - 1
-		if last_tab_index == 0 {
-			d.tab_items.At(last_tab_index).enable_rounded_corners(true, true)
-		} else {
-			d.tab_items.At(0).enable_rounded_corners(true, false)
-			first_tab_bounds := d.layout.ItemBoundsAt(0, context, b)
-			last_tab_bounds := d.layout.ItemBoundsAt(last_tab_index, context, b)
-			tab_bar_measurement := d.last_measurement
-			tab_bar_measurement.X -= d.layout.Padding.Start * 2
-			width := last_tab_bounds.Max.X - first_tab_bounds.Min.X
-			if tab_bar_measurement.X <= width {
-				d.tab_items.At(last_tab_index).enable_rounded_corners(false, true)
-			}
-		}
-	}
-
 	d.layout.LayoutWidgets(context, b, layouter)
 }
 
 func (d *tab_bar_widget[T]) Draw(context *guigui.Context, widgetBounds *guigui.WidgetBounds, dst *ebiten.Image) {
 	radius := tab_item_radius(context)
-	background_clr := color.RGBA{0, 255, 0, 255} //basicwidgetdraw.BackgroundSecondaryColor(context.ColorMode())
+	background_clr := basicwidgetdraw.BackgroundSecondaryColor(context.ColorMode())
 	basicwidgetdraw.DrawRoundedRect(context, dst, widgetBounds.Bounds(), background_clr, radius)
 
-	border_type := basicwidgetdraw.RoundedRectBorderTypeRegular
-	clr1, clr2 := basicwidgetdraw.BorderColors(context.ColorMode(), border_type)
-	width := 1 * float32(context.Scale())
-	basicwidgetdraw.DrawRoundedRectBorder(context, dst, widgetBounds.Bounds(), clr1, clr2, radius, width, border_type)
+	/*
+		border_type := basicwidgetdraw.RoundedRectBorderTypeRegular
+		clr1, clr2 := basicwidgetdraw.BorderColors(context.ColorMode(), border_type)
+		width := 1 * float32(context.Scale())
+		basicwidgetdraw.DrawRoundedRectBorder(context, dst, widgetBounds.Bounds(), clr1, clr2, radius, width, border_type)
+	*/
 }
 
 func (d *tab_bar_widget[T]) Measure(context *guigui.Context, constraints guigui.Constraints) image.Point {

@@ -2,7 +2,6 @@ package widgets
 
 import (
 	"image"
-	"image/color"
 	"io/fs"
 	"widgets/utils"
 
@@ -10,6 +9,7 @@ import (
 	"github.com/guigui-gui/guigui/basicwidget"
 	"github.com/guigui-gui/guigui/basicwidget/basicwidgetdraw"
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/inpututil"
 )
 
 type TabIcon struct {
@@ -40,7 +40,8 @@ type tab_item_widget[T comparable] struct {
 	text       basicwidget.Text
 	close_icon Icon
 
-	left_rounded, right_rounded bool
+	was_hit_at_cursor bool
+	selected          bool
 }
 
 func (d *tab_item_widget[T]) set_data(data TabItem[T]) {
@@ -53,7 +54,7 @@ func (d *tab_item_widget[T]) get_data() TabItem[T] {
 
 func (d *tab_item_widget[T]) icon_size(context *guigui.Context) image.Point {
 	lh := basicwidget.LineHeight(context)
-	lh = (lh / 2) + (lh / 5)
+	lh = (lh / 2) + (lh / 4)
 	return image.Pt(lh, lh)
 }
 
@@ -72,6 +73,9 @@ func (d *tab_item_widget[T]) Build(context *guigui.Context, adder *guigui.ChildA
 	}
 
 	// TODO: bold the text if the tab is selected.
+	t := basicwidget.TextStyle{}
+	t.SetBold(d.selected)
+	d.text.SetBaseStyle(&t)
 	d.text.SetValue(d.data.Text)
 	d.text.SetEllipsisString("...")
 	adder.AddWidget(&d.text)
@@ -81,8 +85,8 @@ func (d *tab_item_widget[T]) Build(context *guigui.Context, adder *guigui.ChildA
 func tab_item_padding(context *guigui.Context) guigui.Padding {
 	u := basicwidget.UnitSize(context)
 	return guigui.Padding{
-		Top:    u / 8,
-		Bottom: u / 8,
+		Top:    u / 12,
+		Bottom: u / 12,
 		Start:  u / 3,
 		End:    u / 3,
 	}
@@ -134,34 +138,37 @@ func (d *tab_item_widget[T]) Layout(context *guigui.Context, widgetBounds *guigu
 	d.layout.LayoutWidgets(context, widgetBounds.Bounds(), layouter)
 }
 
-func (d *tab_item_widget[T]) enable_rounded_corners(left, right bool) {
-	d.left_rounded = left
-	d.right_rounded = right
-}
-
-func (d *tab_item_widget[T]) corners() basicwidgetdraw.Corners {
-	corners := basicwidgetdraw.Corners{}
-	if !d.left_rounded {
-		corners.TopStart = true
-		corners.BottomStart = true
+func (d *tab_item_widget[T]) HandlePointingInput(context *guigui.Context, widgetBounds *guigui.WidgetBounds) guigui.HandleInputResult {
+	if widgetBounds.IsHitAtCursor() && inpututil.IsMouseButtonJustPressed(ebiten.MouseButton0) {
+		d.selected = !d.selected
+		guigui.RequestRedraw(d)
+		return guigui.HandleInputByWidget(d)
+	} else if widgetBounds.IsHitAtCursor() || d.was_hit_at_cursor {
+		d.was_hit_at_cursor = widgetBounds.IsHitAtCursor()
+		guigui.RequestRedraw(d)
+		return guigui.HandleInputByWidget(d)
 	}
-
-	if !d.right_rounded {
-		corners.TopEnd = true
-		corners.BottomEnd = true
-	}
-	return corners
+	return guigui.HandleInputResult{}
 }
 
 func (d *tab_item_widget[T]) Draw(context *guigui.Context, widgetBounds *guigui.WidgetBounds, dst *ebiten.Image) {
-	//clr1, clr2 := basicwidgetdraw.BorderColors(context.ColorMode(), border_type)
-	//border_type := basicwidgetdraw.RoundedRectBorderTypeRegular
+	r := tab_item_radius(context)
+	b := widgetBounds.Bounds()
 
-	background_clr := color.RGBA{255, 0, 0, 255} //basicwidgetdraw.BackgroundSecondaryColor(context.ColorMode())
-	r := tab_item_radius(context)                //basicwidget.UnitSize(context) / 6
-	//basicwidgetdraw.DrawRoundedRect(context, dst, widgetBounds.Bounds(), background_clr, r)
-	basicwidgetdraw.DrawRoundedRectWithSharpCorners(context, dst, widgetBounds.Bounds(), background_clr, r, d.corners())
+	background_clr := basicwidgetdraw.BackgroundSecondaryColor(context.ColorMode())
+	border_type := basicwidgetdraw.RoundedRectBorderTypeOutset
+	if d.selected {
+		border_type = basicwidgetdraw.RoundedRectBorderTypeInset
+	}
+	basicwidgetdraw.DrawRoundedRect(context, dst, b, background_clr, r)
 
+	clr1, clr2 := basicwidgetdraw.BorderColors(context.ColorMode(), border_type)
+	width := 1 * float32(context.Scale())
+
+	if widgetBounds.IsHitAtCursor() || d.selected {
+		basicwidgetdraw.DrawRoundedRectBorder(context, dst, b, clr1, clr2, r, width, border_type)
+		//basicwidgetdraw.DrawRoundedRectBorderWithSharpCorners(context, dst, b, clr1, clr2, r, width, border_type, corners)
+	}
 	// TODO: change the background color based on cursor hover & selected & drag.
 }
 
