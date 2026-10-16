@@ -37,7 +37,13 @@ func (d *tab_bar_widget[T]) Env(context *guigui.Context, key guigui.EnvKey, sour
 	case tab_item_event_close:
 		println("Item closed", widget.data.Text)
 	case tab_item_event_holding:
+		if d.holding_widget != nil {
+			return d.holding_widget == widget, true
+		}
 		d.holding_widget = widget
+		return true, true
+	case tab_item_event_cancel_holding:
+		d.holding_widget = nil
 	}
 	return nil, true
 }
@@ -58,7 +64,14 @@ func (d *tab_bar_widget[T]) Build(context *guigui.Context, adder *guigui.ChildAd
 		tab_item_widget.set_index(i)
 		tab_item_widget.set_data(d.tab_data_items[i])
 		tab_item_widget.set_selected(d.selected_tab_index == i)
+		if d.holding_widget == tab_item_widget {
+			continue
+		}
 		adder.AddWidget(tab_item_widget)
+	}
+
+	if d.holding_widget != nil {
+		adder.AddWidget(d.holding_widget)
 	}
 
 	return nil
@@ -87,6 +100,17 @@ func (d *tab_bar_widget[T]) Layout(context *guigui.Context, widgetBounds *guigui
 
 	b := widgetBounds.Bounds()
 	d.layout.LayoutWidgets(context, b, layouter)
+
+	if d.holding_widget != nil {
+		size := d.holding_widget.Measure(context, guigui.Constraints{})
+		cursor_position := image.Pt(ebiten.CursorPosition())
+		bounds := widgetBounds.Bounds()
+		bounds.Min.X = cursor_position.X - d.holding_widget.RelativeCursorPosition().X
+		bounds.Max.X = bounds.Min.X + size.X
+		bounds.Min.Y += d.layout.Padding.Top
+		bounds.Max.Y -= d.layout.Padding.Bottom
+		layouter.LayoutWidget(d.holding_widget, bounds)
+	}
 }
 
 func (d *tab_bar_widget[T]) Draw(context *guigui.Context, widgetBounds *guigui.WidgetBounds, dst *ebiten.Image) {

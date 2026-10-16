@@ -32,9 +32,10 @@ func (t *TabItem[T]) is_icon() bool {
 type tab_item_event = guigui.EnvKey
 
 var (
-	tab_item_event_selected tab_item_event = guigui.GenerateEnvKey()
-	tab_item_event_close    tab_item_event = guigui.GenerateEnvKey()
-	tab_item_event_holding  tab_item_event = guigui.GenerateEnvKey()
+	tab_item_event_selected       tab_item_event = guigui.GenerateEnvKey()
+	tab_item_event_close          tab_item_event = guigui.GenerateEnvKey()
+	tab_item_event_holding        tab_item_event = guigui.GenerateEnvKey()
+	tab_item_event_cancel_holding tab_item_event = guigui.GenerateEnvKey()
 )
 
 type tab_item_widget[T comparable] struct {
@@ -52,6 +53,7 @@ type tab_item_widget[T comparable] struct {
 	was_hit_at_cursor         bool
 	selected                  bool
 	relative_cusrsor_position image.Point
+	is_moving                 bool
 }
 
 func (d *tab_item_widget[T]) get_index() int {
@@ -179,15 +181,22 @@ func (d *tab_item_widget[T]) HandlePointingInput(context *guigui.Context, widget
 		}
 		guigui.RequestRedraw(d)
 		return guigui.HandleInputByWidget(d)
-	} else if widgetBounds.IsHitAtCursor() && inpututil.MouseButtonPressDuration(ebiten.MouseButton0) > int(float32(ebiten.TPS())*0.2) {
+	} else if widgetBounds.IsHitAtCursor() && inpututil.MouseButtonPressDuration(ebiten.MouseButton0) > 0 {
 		b := widgetBounds.Bounds()
-		d.relative_cusrsor_position = image.Pt(ebiten.CursorPosition())
-		d.relative_cusrsor_position.X -= b.Min.X
-		d.relative_cusrsor_position.Y -= b.Min.Y
+		if !d.is_moving {
+			d.relative_cusrsor_position = image.Pt(ebiten.CursorPosition())
+			d.relative_cusrsor_position.X -= b.Min.X
+			d.relative_cusrsor_position.Y -= b.Min.Y
+		}
 		if d.data.Movable {
-			context.Env(d, tab_item_event_holding)
+			ok, _ := context.Env(d, tab_item_event_holding)
+			d.is_moving = ok.(bool)
 		}
 		guigui.RequestRedraw(d)
+		return guigui.HandleInputByWidget(d)
+	} else if d.is_moving && inpututil.IsMouseButtonJustReleased(ebiten.MouseButton0) {
+		context.Env(d, tab_item_event_cancel_holding)
+		d.is_moving = false
 		return guigui.HandleInputByWidget(d)
 	} else if widgetBounds.IsHitAtCursor() || d.was_hit_at_cursor {
 		d.was_hit_at_cursor = widgetBounds.IsHitAtCursor()
