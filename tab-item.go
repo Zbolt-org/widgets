@@ -29,10 +29,19 @@ func (t *TabItem[T]) is_icon() bool {
 	return t.Icon.Icon != ""
 }
 
+type tab_item_event = guigui.EnvKey
+
+var (
+	tab_item_event_selected tab_item_event = guigui.GenerateEnvKey()
+	tab_item_event_switch   tab_item_event = guigui.GenerateEnvKey()
+	tab_item_event_close    tab_item_event = guigui.GenerateEnvKey()
+)
+
 type tab_item_widget[T comparable] struct {
 	guigui.DefaultWidget
 
-	data TabItem[T]
+	data  TabItem[T]
+	index int
 
 	layout guigui.LinearLayout
 
@@ -42,6 +51,14 @@ type tab_item_widget[T comparable] struct {
 
 	was_hit_at_cursor bool
 	selected          bool
+}
+
+func (d *tab_item_widget[T]) get_index() int {
+	return d.index
+}
+
+func (d *tab_item_widget[T]) set_index(index int) {
+	d.index = index
 }
 
 func (d *tab_item_widget[T]) set_data(data TabItem[T]) {
@@ -138,9 +155,20 @@ func (d *tab_item_widget[T]) Layout(context *guigui.Context, widgetBounds *guigu
 	d.layout.LayoutWidgets(context, widgetBounds.Bounds(), layouter)
 }
 
+func (d *tab_item_widget[T]) is_selected() bool {
+	return d.selected
+}
+
+func (d *tab_item_widget[T]) set_selected(selected bool) {
+	d.selected = selected
+}
+
 func (d *tab_item_widget[T]) HandlePointingInput(context *guigui.Context, widgetBounds *guigui.WidgetBounds) guigui.HandleInputResult {
 	if widgetBounds.IsHitAtCursor() && inpututil.IsMouseButtonJustPressed(ebiten.MouseButton0) {
 		d.selected = !d.selected
+		if d.selected {
+			context.Env(d, tab_item_event_selected)
+		}
 		guigui.RequestRedraw(d)
 		return guigui.HandleInputByWidget(d)
 	} else if widgetBounds.IsHitAtCursor() || d.was_hit_at_cursor {

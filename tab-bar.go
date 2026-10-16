@@ -12,9 +12,10 @@ import (
 type tab_bar_widget[T comparable] struct {
 	guigui.DefaultWidget
 
-	tab_data_items []TabItem[T]
-	tab_items      guigui.WidgetSlice[*tab_item_widget[T]]
-	layout         guigui.LinearLayout
+	selected_tab_index int
+	tab_data_items     []TabItem[T]
+	tab_items          guigui.WidgetSlice[*tab_item_widget[T]]
+	layout             guigui.LinearLayout
 
 	last_measurement image.Point
 }
@@ -24,6 +25,15 @@ type tab_bar_widget[T comparable] struct {
 // on_widget_select
 // select_item
 // selected_item
+func (d *tab_bar_widget[T]) Env(context *guigui.Context, key guigui.EnvKey, source *guigui.EnvSource) (any, bool) {
+	switch key {
+	case tab_item_event_selected:
+		widget := source.Origin.(*tab_item_widget[T])
+		d.selected_tab_index = widget.get_index()
+		return nil, true
+	}
+	return nil, false
+}
 
 func (d *tab_bar_widget[T]) SetTabItems(items []TabItem[T]) {
 	d.tab_data_items = items
@@ -33,7 +43,9 @@ func (d *tab_bar_widget[T]) Build(context *guigui.Context, adder *guigui.ChildAd
 	d.tab_items.SetLen(len(d.tab_data_items))
 
 	for i, tab_item_widget := range d.tab_items.All() {
+		tab_item_widget.set_index(i)
 		tab_item_widget.set_data(d.tab_data_items[i])
+		tab_item_widget.set_selected(d.selected_tab_index == i)
 		adder.AddWidget(tab_item_widget)
 	}
 
