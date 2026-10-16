@@ -5,6 +5,7 @@ import (
 	"widgets/utils"
 
 	"github.com/guigui-gui/guigui"
+	"github.com/guigui-gui/guigui/basicwidget"
 	"github.com/guigui-gui/guigui/basicwidget/basicwidgetdraw"
 	"github.com/hajimehoshi/ebiten/v2"
 )
@@ -169,5 +170,44 @@ func (d *tab_bar_content_widget[T]) Draw(context *guigui.Context, widgetBounds *
 }
 
 func (d *tab_bar_content_widget[T]) Measure(context *guigui.Context, constraints guigui.Constraints) image.Point {
+	return d.layout.Measure(context, constraints)
+}
+
+type tab_bar_widget[T comparable] struct {
+	guigui.DefaultWidget
+
+	panel   basicwidget.Panel
+	content tab_bar_content_widget[T]
+	items   []TabItem[T]
+
+	layout guigui.LinearLayout
+}
+
+func (d *tab_bar_widget[T]) SetTabItems(items []TabItem[T]) {
+	d.items = items
+}
+
+func (d *tab_bar_widget[T]) Build(context *guigui.Context, adder *guigui.ChildAdder) error {
+	d.content.SetTabItems(d.items)
+	d.panel.SetContent(&d.content)
+	d.panel.SetContentConstraints(basicwidget.PanelContentConstraintsFixedWidth)
+	adder.AddWidget(&d.panel)
+	return nil
+}
+
+func (d *tab_bar_widget[T]) Layout(context *guigui.Context, widgetBounds *guigui.WidgetBounds, layouter *guigui.ChildLayouter) {
+	d.layout = guigui.LinearLayout{
+		Direction: guigui.LayoutDirectionHorizontal,
+		Items: []guigui.LinearLayoutItem{
+			{
+				Widget: &d.panel,
+				Size:   guigui.FlexibleSize(1),
+			},
+		},
+	}
+	d.layout.LayoutWidgets(context, widgetBounds.Bounds(), layouter)
+}
+
+func (d *tab_bar_widget[T]) Measure(context *guigui.Context, constraints guigui.Constraints) image.Point {
 	return d.layout.Measure(context, constraints)
 }

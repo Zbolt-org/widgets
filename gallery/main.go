@@ -165,6 +165,147 @@ func (r *Root) Build(context *guigui.Context, adder *guigui.ChildAdder) error {
 			Icon: widgets.TabIcon{
 				Icon: "icons/info-tip.png",
 			},
+			Movable:  true,
+			Closable: true,
+			Text:     "Tab 4",
+		},
+		{
+			Icon: widgets.TabIcon{
+				Icon: "icons/info-tip.png",
+			},
+			Closable: true,
+			Movable:  true,
+			Text:     "Tab 1",
+		},
+		{
+
+			Icon: widgets.TabIcon{
+				Icon: "icons/info-tip.png",
+			},
+			Closable: true,
+			Movable:  true,
+			Text:     "Tab 2",
+		},
+		{
+
+			Icon: widgets.TabIcon{
+				Icon: "icons/info-tip.png",
+			},
+			Closable: true,
+			Movable:  true,
+			Text:     "Tab 3",
+		},
+		{
+
+			Icon: widgets.TabIcon{
+				Icon: "icons/info-tip.png",
+			},
+			Movable:  true,
+			Closable: true,
+			Text:     "Tab 4",
+		},
+		{
+			Icon: widgets.TabIcon{
+				Icon: "icons/info-tip.png",
+			},
+			Closable: true,
+			Movable:  true,
+			Text:     "Tab 1",
+		},
+		{
+
+			Icon: widgets.TabIcon{
+				Icon: "icons/info-tip.png",
+			},
+			Closable: true,
+			Movable:  true,
+			Text:     "Tab 2",
+		},
+		{
+
+			Icon: widgets.TabIcon{
+				Icon: "icons/info-tip.png",
+			},
+			Closable: true,
+			Movable:  true,
+			Text:     "Tab 3",
+		},
+		{
+
+			Icon: widgets.TabIcon{
+				Icon: "icons/info-tip.png",
+			},
+			Movable:  true,
+			Closable: true,
+			Text:     "Tab 4",
+		},
+		{
+			Icon: widgets.TabIcon{
+				Icon: "icons/info-tip.png",
+			},
+			Closable: true,
+			Movable:  true,
+			Text:     "Tab 1",
+		},
+		{
+
+			Icon: widgets.TabIcon{
+				Icon: "icons/info-tip.png",
+			},
+			Closable: true,
+			Movable:  true,
+			Text:     "Tab 2",
+		},
+		{
+
+			Icon: widgets.TabIcon{
+				Icon: "icons/info-tip.png",
+			},
+			Closable: true,
+			Movable:  true,
+			Text:     "Tab 3",
+		},
+		{
+
+			Icon: widgets.TabIcon{
+				Icon: "icons/info-tip.png",
+			},
+			Movable:  true,
+			Closable: true,
+			Text:     "Tab 4",
+		},
+		{
+			Icon: widgets.TabIcon{
+				Icon: "icons/info-tip.png",
+			},
+			Closable: true,
+			Movable:  true,
+			Text:     "Tab 1",
+		},
+		{
+
+			Icon: widgets.TabIcon{
+				Icon: "icons/info-tip.png",
+			},
+			Closable: true,
+			Movable:  true,
+			Text:     "Tab 2",
+		},
+		{
+
+			Icon: widgets.TabIcon{
+				Icon: "icons/info-tip.png",
+			},
+			Closable: true,
+			Movable:  true,
+			Text:     "Tab 3",
+		},
+		{
+
+			Icon: widgets.TabIcon{
+				Icon: "icons/info-tip.png",
+			},
+			Movable:  true,
 			Closable: true,
 			Text:     "Tab 4",
 		},

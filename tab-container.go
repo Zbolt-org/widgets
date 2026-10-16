@@ -11,7 +11,7 @@ type TabContainer[T comparable] struct {
 	guigui.DefaultWidget
 
 	tab_items []TabItem[T]
-	tab_bar   tab_bar_content_widget[T]
+	tab_bar   tab_bar_widget[T]
 
 	layout guigui.LinearLayout
 }
