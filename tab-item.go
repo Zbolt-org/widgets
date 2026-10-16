@@ -49,8 +49,9 @@ type tab_item_widget[T comparable] struct {
 	text       basicwidget.Text
 	close_icon Icon
 
-	was_hit_at_cursor bool
-	selected          bool
+	was_hit_at_cursor         bool
+	selected                  bool
+	relative_cusrsor_position image.Point
 }
 
 func (d *tab_item_widget[T]) get_index() int {
@@ -166,6 +167,10 @@ func (d *tab_item_widget[T]) set_selected(selected bool) {
 	d.selected = selected
 }
 
+func (d *tab_item_widget[T]) RelativeCursorPosition() image.Point {
+	return d.relative_cusrsor_position
+}
+
 func (d *tab_item_widget[T]) HandlePointingInput(context *guigui.Context, widgetBounds *guigui.WidgetBounds) guigui.HandleInputResult {
 	if widgetBounds.IsHitAtCursor() && inpututil.IsMouseButtonJustPressed(ebiten.MouseButton0) {
 		d.selected = !d.selected
@@ -175,6 +180,10 @@ func (d *tab_item_widget[T]) HandlePointingInput(context *guigui.Context, widget
 		guigui.RequestRedraw(d)
 		return guigui.HandleInputByWidget(d)
 	} else if widgetBounds.IsHitAtCursor() && inpututil.MouseButtonPressDuration(ebiten.MouseButton0) > int(float32(ebiten.TPS())*0.2) {
+		b := widgetBounds.Bounds()
+		d.relative_cusrsor_position = image.Pt(ebiten.CursorPosition())
+		d.relative_cusrsor_position.X -= b.Min.X
+		d.relative_cusrsor_position.Y -= b.Min.Y
 		if d.data.Movable {
 			context.Env(d, tab_item_event_holding)
 		}

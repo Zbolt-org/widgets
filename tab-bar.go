@@ -45,6 +45,8 @@ func (d *tab_bar_widget[T]) Env(context *guigui.Context, key guigui.EnvKey, sour
 func (d *tab_bar_widget[T]) SetTabItems(items []TabItem[T]) {
 	if len(d.tab_data_items) != len(items) {
 		d.holding_widget = nil
+	} else if len(items)-1 <= d.selected_tab_index {
+		d.selected_tab_index = max(len(items)-1, 0)
 	}
 	d.tab_data_items = items
 }
@@ -72,7 +74,12 @@ func (d *tab_bar_widget[T]) Layout(context *guigui.Context, widgetBounds *guigui
 	}
 
 	for i, tab_item := range d.tab_items.All() {
-		d.layout.Items[i].Widget = tab_item
+		if tab_item == d.holding_widget {
+			size := tab_item.Measure(context, guigui.Constraints{})
+			d.layout.Items[i].Size = guigui.FixedSize(size.X)
+		} else {
+			d.layout.Items[i].Widget = tab_item
+		}
 	}
 	d.layout.Items = append(d.layout.Items, guigui.LinearLayoutItem{
 		Size: guigui.FlexibleSize(1),
