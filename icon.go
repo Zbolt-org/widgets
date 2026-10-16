@@ -9,6 +9,7 @@ import (
 	"github.com/guigui-gui/guigui"
 	"github.com/guigui-gui/guigui/basicwidget"
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/inpututil"
 )
 
 //go:embed icons/*
@@ -31,7 +32,12 @@ type Icon struct {
 		size image.Point
 	}
 
-	clickable bool
+	clickable   bool
+	on_click_fn func(context *guigui.Context, icon_ref *Icon)
+}
+
+func (icon_ref *Icon) OnClick(fn func(context *guigui.Context, icon_ref *Icon)) {
+	icon_ref.on_click_fn = fn
 }
 
 func (icon_ref *Icon) Clickable() bool {
@@ -146,6 +152,14 @@ func (icon_ref *Icon) Measure(context *guigui.Context, constraints guigui.Constr
 		return image.Pt(line_height, line_height)
 	}
 	return icon_ref.size
+}
+
+func (icon_ref *Icon) HandlePointingInput(context *guigui.Context, widgetBounds *guigui.WidgetBounds) guigui.HandleInputResult {
+	if widgetBounds.IsHitAtCursor() && inpututil.IsMouseButtonJustPressed(ebiten.MouseButton0) && icon_ref.on_click_fn != nil && icon_ref.clickable {
+		icon_ref.on_click_fn(context, icon_ref)
+		return guigui.HandleInputByWidget(icon_ref)
+	}
+	return guigui.HandleInputResult{}
 }
 
 func (icon_ref *Icon) CursorShape(context *guigui.Context, widgetBounds *guigui.WidgetBounds) (ebiten.CursorShapeType, bool) {

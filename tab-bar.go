@@ -26,13 +26,17 @@ type tab_bar_widget[T comparable] struct {
 // select_item
 // selected_item
 func (d *tab_bar_widget[T]) Env(context *guigui.Context, key guigui.EnvKey, source *guigui.EnvSource) (any, bool) {
+	widget, ok := source.Origin.(*tab_item_widget[T])
+	if !ok {
+		return nil, false
+	}
 	switch key {
 	case tab_item_event_selected:
-		widget := source.Origin.(*tab_item_widget[T])
 		d.selected_tab_index = widget.get_index()
-		return nil, true
+	case tab_item_event_close:
+		println("Item closed", widget.data.Text)
 	}
-	return nil, false
+	return nil, true
 }
 
 func (d *tab_bar_widget[T]) SetTabItems(items []TabItem[T]) {

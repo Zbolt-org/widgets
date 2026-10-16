@@ -81,6 +81,9 @@ func (d *tab_item_widget[T]) Build(context *guigui.Context, adder *guigui.ChildA
 	if d.data.Closable {
 		d.close_icon.Load("icons/close.png", nil, icon_size)
 		d.close_icon.SetClickable(true)
+		d.close_icon.OnClick(func(context *guigui.Context, icon_ref *Icon) {
+			context.Env(d, tab_item_event_close)
+		})
 		adder.AddWidget(&d.close_icon)
 	}
 
