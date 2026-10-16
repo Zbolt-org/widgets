@@ -222,6 +222,9 @@ func (d *tab_item_widget[T]) Draw(context *guigui.Context, widgetBounds *guigui.
 	basicwidgetdraw.DrawRoundedRect(context, dst, b, background_clr, r)
 
 	clr1, clr2 := basicwidgetdraw.BorderColors(context.ColorMode(), border_type)
+	if widgetBounds.IsHitAtCursor() && !d.is_moving && inpututil.MouseButtonPressDuration(ebiten.MouseButton0) > 0 {
+		clr1, clr2 = basicwidgetdraw.BorderAccentColors(context.ColorMode(), border_type)
+	}
 	width := 1 * float32(context.Scale())
 
 	if widgetBounds.IsHitAtCursor() || d.selected {
