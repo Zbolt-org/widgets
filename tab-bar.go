@@ -17,7 +17,6 @@ type tab_bar_content_widget[T comparable] struct {
 	tab_items          guigui.WidgetSlice[*tab_item_widget[T]]
 	layout             guigui.LinearLayout
 
-	last_measurement       image.Point
 	holding_widget         *tab_item_widget[T]
 	switch_canidate_widget *tab_item_widget[T]
 
@@ -170,6 +169,5 @@ func (d *tab_bar_content_widget[T]) Draw(context *guigui.Context, widgetBounds *
 }
 
 func (d *tab_bar_content_widget[T]) Measure(context *guigui.Context, constraints guigui.Constraints) image.Point {
-	d.last_measurement = d.layout.Measure(context, constraints)
-	return d.last_measurement
+	return d.layout.Measure(context, constraints)
 }
