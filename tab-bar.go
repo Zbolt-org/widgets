@@ -113,6 +113,15 @@ func (d *tab_bar_widget[T]) Layout(context *guigui.Context, widgetBounds *guigui
 	}
 }
 
+func (d *tab_bar_widget[T]) HandlePointingInput(context *guigui.Context, widgetBounds *guigui.WidgetBounds) guigui.HandleInputResult {
+	if d.holding_widget != nil && !widgetBounds.IsHitAtCursor() {
+		d.holding_widget.cancel_moving()
+		d.holding_widget = nil
+		return guigui.HandleInputByWidget(d)
+	}
+	return guigui.HandleInputResult{}
+}
+
 func (d *tab_bar_widget[T]) Draw(context *guigui.Context, widgetBounds *guigui.WidgetBounds, dst *ebiten.Image) {
 	radius := tab_item_radius(context)
 	background_clr := basicwidgetdraw.BackgroundSecondaryColor(context.ColorMode())

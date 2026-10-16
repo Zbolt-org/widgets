@@ -173,6 +173,10 @@ func (d *tab_item_widget[T]) RelativeCursorPosition() image.Point {
 	return d.relative_cusrsor_position
 }
 
+func (d *tab_item_widget[T]) cancel_moving() {
+	d.is_moving = false
+}
+
 func (d *tab_item_widget[T]) HandlePointingInput(context *guigui.Context, widgetBounds *guigui.WidgetBounds) guigui.HandleInputResult {
 	is_hit_at_cursor := widgetBounds.IsHitAtCursor()
 	if is_hit_at_cursor && inpututil.IsMouseButtonJustPressed(ebiten.MouseButton0) {
