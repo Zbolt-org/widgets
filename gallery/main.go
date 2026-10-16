@@ -147,6 +147,7 @@ func (r *Root) Build(context *guigui.Context, adder *guigui.ChildAdder) error {
 				Icon: "icons/info-tip.png",
 			},
 			Closable: true,
+			Movable:  true,
 			Text:     "Tab 2",
 		},
 		{

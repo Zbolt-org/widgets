@@ -33,8 +33,8 @@ type tab_item_event = guigui.EnvKey
 
 var (
 	tab_item_event_selected tab_item_event = guigui.GenerateEnvKey()
-	tab_item_event_switch   tab_item_event = guigui.GenerateEnvKey()
 	tab_item_event_close    tab_item_event = guigui.GenerateEnvKey()
+	tab_item_event_holding  tab_item_event = guigui.GenerateEnvKey()
 )
 
 type tab_item_widget[T comparable] struct {
@@ -171,6 +171,12 @@ func (d *tab_item_widget[T]) HandlePointingInput(context *guigui.Context, widget
 		d.selected = !d.selected
 		if d.selected {
 			context.Env(d, tab_item_event_selected)
+		}
+		guigui.RequestRedraw(d)
+		return guigui.HandleInputByWidget(d)
+	} else if widgetBounds.IsHitAtCursor() && inpututil.MouseButtonPressDuration(ebiten.MouseButton0) > int(float32(ebiten.TPS())*0.2) {
+		if d.data.Movable {
+			context.Env(d, tab_item_event_holding)
 		}
 		guigui.RequestRedraw(d)
 		return guigui.HandleInputByWidget(d)

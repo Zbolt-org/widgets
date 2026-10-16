@@ -35,6 +35,8 @@ func (d *tab_bar_widget[T]) Env(context *guigui.Context, key guigui.EnvKey, sour
 		d.selected_tab_index = widget.get_index()
 	case tab_item_event_close:
 		println("Item closed", widget.data.Text)
+	case tab_item_event_holding:
+		println("Item holding", widget.data.Text)
 	}
 	return nil, true
 }
