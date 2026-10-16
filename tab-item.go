@@ -32,10 +32,10 @@ func (t *TabItem[T]) is_icon() bool {
 type tab_item_event = guigui.EnvKey
 
 var (
-	tab_item_event_selected       tab_item_event = guigui.GenerateEnvKey()
-	tab_item_event_close          tab_item_event = guigui.GenerateEnvKey()
-	tab_item_event_holding        tab_item_event = guigui.GenerateEnvKey()
-	tab_item_event_cancel_holding tab_item_event = guigui.GenerateEnvKey()
+	tab_item_event_selected            tab_item_event = guigui.GenerateEnvKey()
+	tab_item_event_close               tab_item_event = guigui.GenerateEnvKey()
+	tab_item_event_holding             tab_item_event = guigui.GenerateEnvKey()
+	tab_item_event_cancel_holding      tab_item_event = guigui.GenerateEnvKey()
 )
 
 type tab_item_widget[T comparable] struct {
@@ -197,6 +197,7 @@ func (d *tab_item_widget[T]) HandlePointingInput(context *guigui.Context, widget
 			ok, _ := context.Env(d, tab_item_event_holding)
 			d.is_moving = ok.(bool)
 		}
+
 		return guigui.HandleInputByWidget(d)
 	} else if d.is_moving && inpututil.IsMouseButtonJustReleased(ebiten.MouseButton0) {
 		context.Env(d, tab_item_event_cancel_holding)
@@ -222,7 +223,7 @@ func (d *tab_item_widget[T]) Draw(context *guigui.Context, widgetBounds *guigui.
 	basicwidgetdraw.DrawRoundedRect(context, dst, b, background_clr, r)
 
 	clr1, clr2 := basicwidgetdraw.BorderColors(context.ColorMode(), border_type)
-	if widgetBounds.IsHitAtCursor() && !d.is_moving && inpututil.MouseButtonPressDuration(ebiten.MouseButton0) > 0 {
+	if d.data.Movable && widgetBounds.IsHitAtCursor() && !d.is_moving && inpututil.MouseButtonPressDuration(ebiten.MouseButton0) > 0 {
 		clr1, clr2 = basicwidgetdraw.BorderAccentColors(context.ColorMode(), border_type)
 	}
 	width := 1 * float32(context.Scale())

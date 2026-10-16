@@ -17,8 +17,9 @@ type tab_bar_widget[T comparable] struct {
 	tab_items          guigui.WidgetSlice[*tab_item_widget[T]]
 	layout             guigui.LinearLayout
 
-	last_measurement image.Point
-	holding_widget   *tab_item_widget[T]
+	last_measurement       image.Point
+	holding_widget         *tab_item_widget[T]
+	switch_canidate_widget *tab_item_widget[T]
 }
 
 // on_close
@@ -43,14 +44,23 @@ func (d *tab_bar_widget[T]) Env(context *guigui.Context, key guigui.EnvKey, sour
 		d.holding_widget = widget
 		return true, true
 	case tab_item_event_cancel_holding:
-		d.holding_widget = nil
+		if d.switch_canidate_widget != nil && d.switch_canidate_widget.data.Movable {
+			println("Switch canidate", d.switch_canidate_widget.get_data().Text)
+		}
+		
+		d.cancel_tab_item_moving()
 	}
 	return nil, true
 }
 
+func (d *tab_bar_widget[T]) cancel_tab_item_moving() {
+	d.holding_widget = nil
+	d.switch_canidate_widget = nil
+}
+
 func (d *tab_bar_widget[T]) SetTabItems(items []TabItem[T]) {
 	if len(d.tab_data_items) != len(items) {
-		d.holding_widget = nil
+		d.cancel_tab_item_moving()
 	} else if len(items)-1 <= d.selected_tab_index {
 		d.selected_tab_index = max(len(items)-1, 0)
 	}
@@ -116,7 +126,7 @@ func (d *tab_bar_widget[T]) Layout(context *guigui.Context, widgetBounds *guigui
 func (d *tab_bar_widget[T]) HandlePointingInput(context *guigui.Context, widgetBounds *guigui.WidgetBounds) guigui.HandleInputResult {
 	if d.holding_widget != nil && !widgetBounds.IsHitAtCursor() {
 		d.holding_widget.cancel_moving()
-		d.holding_widget = nil
+		d.cancel_tab_item_moving()
 		return guigui.HandleInputByWidget(d)
 	}
 	return guigui.HandleInputResult{}
