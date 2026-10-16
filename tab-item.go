@@ -174,32 +174,32 @@ func (d *tab_item_widget[T]) RelativeCursorPosition() image.Point {
 }
 
 func (d *tab_item_widget[T]) HandlePointingInput(context *guigui.Context, widgetBounds *guigui.WidgetBounds) guigui.HandleInputResult {
-	if widgetBounds.IsHitAtCursor() && inpututil.IsMouseButtonJustPressed(ebiten.MouseButton0) {
+	is_hit_at_cursor := widgetBounds.IsHitAtCursor()
+	if is_hit_at_cursor && inpututil.IsMouseButtonJustPressed(ebiten.MouseButton0) {
 		d.selected = !d.selected
 		if d.selected {
 			context.Env(d, tab_item_event_selected)
 		}
 		guigui.RequestRedraw(d)
 		return guigui.HandleInputByWidget(d)
-	} else if widgetBounds.IsHitAtCursor() && inpututil.MouseButtonPressDuration(ebiten.MouseButton0) > 0 {
+	} else if is_hit_at_cursor && inpututil.MouseButtonPressDuration(ebiten.MouseButton0) > 0 {
 		b := widgetBounds.Bounds()
 		if !d.is_moving {
 			d.relative_cusrsor_position = image.Pt(ebiten.CursorPosition())
 			d.relative_cusrsor_position.X -= b.Min.X
 			d.relative_cusrsor_position.Y -= b.Min.Y
 		}
-		if d.data.Movable {
+		if d.data.Movable && !d.is_moving {
 			ok, _ := context.Env(d, tab_item_event_holding)
 			d.is_moving = ok.(bool)
 		}
-		guigui.RequestRedraw(d)
 		return guigui.HandleInputByWidget(d)
 	} else if d.is_moving && inpututil.IsMouseButtonJustReleased(ebiten.MouseButton0) {
 		context.Env(d, tab_item_event_cancel_holding)
 		d.is_moving = false
 		return guigui.HandleInputByWidget(d)
-	} else if widgetBounds.IsHitAtCursor() || d.was_hit_at_cursor {
-		d.was_hit_at_cursor = widgetBounds.IsHitAtCursor()
+	} else if is_hit_at_cursor || d.was_hit_at_cursor {
+		d.was_hit_at_cursor = is_hit_at_cursor
 		guigui.RequestRedraw(d)
 		return guigui.HandleInputByWidget(d)
 	}
