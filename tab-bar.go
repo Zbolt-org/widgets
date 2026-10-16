@@ -9,7 +9,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
-type tab_bar_widget[T comparable] struct {
+type tab_bar_content_widget[T comparable] struct {
 	guigui.DefaultWidget
 
 	selected_tab_index int
@@ -26,31 +26,31 @@ type tab_bar_widget[T comparable] struct {
 	on_tab_item_switch_fn func(context *guigui.Context, index1 int, data1 TabItem[T], index2 int, data2 TabItem[T])
 }
 
-func (d *tab_bar_widget[T]) TabItemsLenght() int {
+func (d *tab_bar_content_widget[T]) TabItemsLenght() int {
 	return len(d.tab_data_items)
 }
 
-func (d *tab_bar_widget[T]) SelectTabItem(index int) {
+func (d *tab_bar_content_widget[T]) SelectTabItem(index int) {
 	d.selected_tab_index = index
 }
 
-func (d *tab_bar_widget[T]) SelectedTabItem() (index int, ok bool) {
+func (d *tab_bar_content_widget[T]) SelectedTabItem() (index int, ok bool) {
 	return d.selected_tab_index, len(d.tab_data_items) > 0
 }
 
-func (d *tab_bar_widget[T]) OnTabClose(fn func(context *guigui.Context, index int, data TabItem[T])) {
+func (d *tab_bar_content_widget[T]) OnTabClose(fn func(context *guigui.Context, index int, data TabItem[T])) {
 	d.on_tab_item_close_fn = fn
 }
 
-func (d *tab_bar_widget[T]) OnTabSelect(fn func(context *guigui.Context, index int, data TabItem[T])) {
+func (d *tab_bar_content_widget[T]) OnTabSelect(fn func(context *guigui.Context, index int, data TabItem[T])) {
 	d.on_tab_item_select_fn = fn
 }
 
-func (d *tab_bar_widget[T]) OnTabSwitch(fn func(context *guigui.Context, index1 int, data1 TabItem[T], index2 int, data2 TabItem[T])) {
+func (d *tab_bar_content_widget[T]) OnTabSwitch(fn func(context *guigui.Context, index1 int, data1 TabItem[T], index2 int, data2 TabItem[T])) {
 	d.on_tab_item_switch_fn = fn
 }
 
-func (d *tab_bar_widget[T]) Env(context *guigui.Context, key guigui.EnvKey, source *guigui.EnvSource) (any, bool) {
+func (d *tab_bar_content_widget[T]) Env(context *guigui.Context, key guigui.EnvKey, source *guigui.EnvSource) (any, bool) {
 	widget, ok := source.Origin.(*tab_item_widget[T])
 	if !ok {
 		return nil, false
@@ -83,12 +83,12 @@ func (d *tab_bar_widget[T]) Env(context *guigui.Context, key guigui.EnvKey, sour
 	return nil, true
 }
 
-func (d *tab_bar_widget[T]) cancel_tab_item_moving() {
+func (d *tab_bar_content_widget[T]) cancel_tab_item_moving() {
 	d.holding_widget = nil
 	d.switch_canidate_widget = nil
 }
 
-func (d *tab_bar_widget[T]) SetTabItems(items []TabItem[T]) {
+func (d *tab_bar_content_widget[T]) SetTabItems(items []TabItem[T]) {
 	if len(d.tab_data_items) != len(items) {
 		d.cancel_tab_item_moving()
 	}
@@ -98,7 +98,7 @@ func (d *tab_bar_widget[T]) SetTabItems(items []TabItem[T]) {
 	d.tab_data_items = items
 }
 
-func (d *tab_bar_widget[T]) Build(context *guigui.Context, adder *guigui.ChildAdder) error {
+func (d *tab_bar_content_widget[T]) Build(context *guigui.Context, adder *guigui.ChildAdder) error {
 	d.tab_items.SetLen(len(d.tab_data_items))
 
 	for i, tab_item_widget := range d.tab_items.All() {
@@ -118,7 +118,7 @@ func (d *tab_bar_widget[T]) Build(context *guigui.Context, adder *guigui.ChildAd
 	return nil
 }
 
-func (d *tab_bar_widget[T]) Layout(context *guigui.Context, widgetBounds *guigui.WidgetBounds, layouter *guigui.ChildLayouter) {
+func (d *tab_bar_content_widget[T]) Layout(context *guigui.Context, widgetBounds *guigui.WidgetBounds, layouter *guigui.ChildLayouter) {
 	padding := tab_item_radius(context)
 	d.layout = guigui.LinearLayout{
 		Direction: guigui.LayoutDirectionHorizontal,
@@ -154,7 +154,7 @@ func (d *tab_bar_widget[T]) Layout(context *guigui.Context, widgetBounds *guigui
 	}
 }
 
-func (d *tab_bar_widget[T]) HandlePointingInput(context *guigui.Context, widgetBounds *guigui.WidgetBounds) guigui.HandleInputResult {
+func (d *tab_bar_content_widget[T]) HandlePointingInput(context *guigui.Context, widgetBounds *guigui.WidgetBounds) guigui.HandleInputResult {
 	if d.holding_widget != nil && !widgetBounds.IsHitAtCursor() {
 		d.holding_widget.cancel_moving()
 		d.cancel_tab_item_moving()
@@ -163,13 +163,13 @@ func (d *tab_bar_widget[T]) HandlePointingInput(context *guigui.Context, widgetB
 	return guigui.HandleInputResult{}
 }
 
-func (d *tab_bar_widget[T]) Draw(context *guigui.Context, widgetBounds *guigui.WidgetBounds, dst *ebiten.Image) {
+func (d *tab_bar_content_widget[T]) Draw(context *guigui.Context, widgetBounds *guigui.WidgetBounds, dst *ebiten.Image) {
 	radius := tab_item_radius(context)
 	background_clr := basicwidgetdraw.BackgroundSecondaryColor(context.ColorMode())
 	basicwidgetdraw.DrawRoundedRect(context, dst, widgetBounds.Bounds(), background_clr, radius)
 }
 
-func (d *tab_bar_widget[T]) Measure(context *guigui.Context, constraints guigui.Constraints) image.Point {
+func (d *tab_bar_content_widget[T]) Measure(context *guigui.Context, constraints guigui.Constraints) image.Point {
 	d.last_measurement = d.layout.Measure(context, constraints)
 	return d.last_measurement
 }
