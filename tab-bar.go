@@ -178,17 +178,39 @@ type tab_bar_widget[T comparable] struct {
 
 	panel   basicwidget.Panel
 	content tab_bar_content_widget[T]
-	items   []TabItem[T]
 
 	layout guigui.LinearLayout
 }
 
 func (d *tab_bar_widget[T]) SetTabItems(items []TabItem[T]) {
-	d.items = items
+	d.content.SetTabItems(items)
+}
+
+func (d *tab_bar_widget[T]) TabItemsLenght() int {
+	return d.content.TabItemsLenght()
+}
+
+func (d *tab_bar_widget[T]) SelectTabItem(index int) {
+	d.content.SelectTabItem(index)
+}
+
+func (d *tab_bar_widget[T]) SelectedTabItem() (index int, ok bool) {
+	return d.content.SelectedTabItem()
+}
+
+func (d *tab_bar_widget[T]) OnTabClose(fn func(context *guigui.Context, index int, data TabItem[T])) {
+	d.content.OnTabClose(fn)
+}
+
+func (d *tab_bar_widget[T]) OnTabSelect(fn func(context *guigui.Context, index int, data TabItem[T])) {
+	d.content.OnTabSelect(fn)
+}
+
+func (d *tab_bar_widget[T]) OnTabSwitch(fn func(context *guigui.Context, index1 int, data1 TabItem[T], index2 int, data2 TabItem[T])) {
+	d.OnTabSwitch(fn)
 }
 
 func (d *tab_bar_widget[T]) Build(context *guigui.Context, adder *guigui.ChildAdder) error {
-	d.content.SetTabItems(d.items)
 	d.panel.SetContent(&d.content)
 	d.panel.SetContentConstraints(basicwidget.PanelContentConstraintsFixedWidth)
 	adder.AddWidget(&d.panel)
