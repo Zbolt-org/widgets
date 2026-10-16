@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"image"
 	"image/jpeg"
 	"log"
@@ -66,6 +67,7 @@ var (
 			Text:     "Tab 4",
 		},
 	}
+	tab_count int = len(tab_items)
 )
 
 type Root struct {
@@ -95,6 +97,9 @@ type Root struct {
 
 	text_input_text basicwidget.Text
 	text_input      widgets.TextInput
+
+	add_tab_text basicwidget.Text
+	add_tab_btn  basicwidget.Button
 
 	tab_container widgets.TabContainer[struct{}]
 	layout        guigui.LinearLayout
@@ -142,6 +147,17 @@ func (r *Root) Build(context *guigui.Context, adder *guigui.ChildAdder) error {
 
 	r.text_input_text.SetValue("TextInput widget with a contextmenu")
 
+	r.add_tab_text.SetValue("Add tab")
+	r.add_tab_btn.OnDown(func(context *guigui.Context) {
+		tab_count++
+		tab_items = append(tab_items, widgets.TabItem[struct{}]{
+			Text:     fmt.Sprintf("Tab %v", tab_count),
+			Movable:  true,
+			Closable: true,
+		})
+	})
+	r.add_tab_btn.SetText("Add a new tab")
+
 	r.form.SetItems([]basicwidget.FormItem{
 		{
 			PrimaryWidget:   &r.labeled_toggle_text,
@@ -170,6 +186,10 @@ func (r *Root) Build(context *guigui.Context, adder *guigui.ChildAdder) error {
 		{
 			PrimaryWidget:   &r.text_input_text,
 			SecondaryWidget: &r.text_input,
+		},
+		{
+			PrimaryWidget:   &r.add_tab_text,
+			SecondaryWidget: &r.add_tab_btn,
 		},
 	})
 	adder.AddWidget(&r.form)
