@@ -18,6 +18,7 @@ type tab_bar_widget[T comparable] struct {
 	layout             guigui.LinearLayout
 
 	last_measurement image.Point
+	holding_widget   *tab_item_widget[T]
 }
 
 // on_close
@@ -36,12 +37,15 @@ func (d *tab_bar_widget[T]) Env(context *guigui.Context, key guigui.EnvKey, sour
 	case tab_item_event_close:
 		println("Item closed", widget.data.Text)
 	case tab_item_event_holding:
-		println("Item holding", widget.data.Text)
+		d.holding_widget = widget
 	}
 	return nil, true
 }
 
 func (d *tab_bar_widget[T]) SetTabItems(items []TabItem[T]) {
+	if len(d.tab_data_items) != len(items) {
+		d.holding_widget = nil
+	}
 	d.tab_data_items = items
 }
 
