@@ -44,11 +44,13 @@ func (d *tab_bar_widget[T]) Env(context *guigui.Context, key guigui.EnvKey, sour
 		d.holding_widget = widget
 		return true, true
 	case tab_item_event_cancel_holding:
-		if d.switch_canidate_widget != nil && d.switch_canidate_widget.data.Movable {
+		if d.switch_canidate_widget != d.holding_widget && d.switch_canidate_widget != nil && d.switch_canidate_widget.data.Movable {
 			println("Switch canidate", d.switch_canidate_widget.get_data().Text)
 		}
-		
+
 		d.cancel_tab_item_moving()
+	case tab_item_event_switch_canidate:
+		d.switch_canidate_widget = widget
 	}
 	return nil, true
 }
@@ -136,13 +138,6 @@ func (d *tab_bar_widget[T]) Draw(context *guigui.Context, widgetBounds *guigui.W
 	radius := tab_item_radius(context)
 	background_clr := basicwidgetdraw.BackgroundSecondaryColor(context.ColorMode())
 	basicwidgetdraw.DrawRoundedRect(context, dst, widgetBounds.Bounds(), background_clr, radius)
-
-	/*
-		border_type := basicwidgetdraw.RoundedRectBorderTypeRegular
-		clr1, clr2 := basicwidgetdraw.BorderColors(context.ColorMode(), border_type)
-		width := 1 * float32(context.Scale())
-		basicwidgetdraw.DrawRoundedRectBorder(context, dst, widgetBounds.Bounds(), clr1, clr2, radius, width, border_type)
-	*/
 }
 
 func (d *tab_bar_widget[T]) Measure(context *guigui.Context, constraints guigui.Constraints) image.Point {

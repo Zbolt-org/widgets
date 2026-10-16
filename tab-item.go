@@ -32,10 +32,11 @@ func (t *TabItem[T]) is_icon() bool {
 type tab_item_event = guigui.EnvKey
 
 var (
-	tab_item_event_selected            tab_item_event = guigui.GenerateEnvKey()
-	tab_item_event_close               tab_item_event = guigui.GenerateEnvKey()
-	tab_item_event_holding             tab_item_event = guigui.GenerateEnvKey()
-	tab_item_event_cancel_holding      tab_item_event = guigui.GenerateEnvKey()
+	tab_item_event_selected        tab_item_event = guigui.GenerateEnvKey()
+	tab_item_event_close           tab_item_event = guigui.GenerateEnvKey()
+	tab_item_event_holding         tab_item_event = guigui.GenerateEnvKey()
+	tab_item_event_cancel_holding  tab_item_event = guigui.GenerateEnvKey()
+	tab_item_event_switch_canidate tab_item_event = guigui.GenerateEnvKey()
 )
 
 type tab_item_widget[T comparable] struct {
@@ -225,6 +226,7 @@ func (d *tab_item_widget[T]) Draw(context *guigui.Context, widgetBounds *guigui.
 	clr1, clr2 := basicwidgetdraw.BorderColors(context.ColorMode(), border_type)
 	if d.data.Movable && widgetBounds.IsHitAtCursor() && !d.is_moving && inpututil.MouseButtonPressDuration(ebiten.MouseButton0) > 0 {
 		clr1, clr2 = basicwidgetdraw.BorderAccentColors(context.ColorMode(), border_type)
+		context.Env(d, tab_item_event_switch_canidate)
 	}
 	width := 1 * float32(context.Scale())
 
