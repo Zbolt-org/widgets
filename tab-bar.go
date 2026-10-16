@@ -5,6 +5,7 @@ import (
 	"widgets/utils"
 
 	"github.com/guigui-gui/guigui"
+	"github.com/guigui-gui/guigui/basicwidget"
 	"github.com/guigui-gui/guigui/basicwidget/basicwidgetdraw"
 	"github.com/hajimehoshi/ebiten/v2"
 )
@@ -24,6 +25,9 @@ type tab_bar_widget[T comparable] struct {
 	on_tab_item_close_fn  func(context *guigui.Context, index int, data TabItem[T])
 	on_tab_item_select_fn func(context *guigui.Context, index int, data TabItem[T])
 	on_tab_item_switch_fn func(context *guigui.Context, index1 int, data1 TabItem[T], index2 int, data2 TabItem[T])
+
+	select_widget basicwidget.Select[T]
+	select_items  []basicwidget.SelectItem[T]
 }
 
 func (d *tab_bar_widget[T]) TabItemsLenght() int {
@@ -96,6 +100,12 @@ func (d *tab_bar_widget[T]) SetTabItems(items []TabItem[T]) {
 		d.selected_tab_index = max(len(items)-1, 0)
 	}
 	d.tab_data_items = items
+
+	d.select_items = utils.FitSlice(d.select_items, len(items))
+	for i, item := range items {
+		d.select_items[i].Text = item.Text
+		d.select_items[i].Value = item.Value
+	}
 }
 
 func (d *tab_bar_widget[T]) Build(context *guigui.Context, adder *guigui.ChildAdder) error {
@@ -115,6 +125,8 @@ func (d *tab_bar_widget[T]) Build(context *guigui.Context, adder *guigui.ChildAd
 		adder.AddWidget(d.holding_widget)
 	}
 
+	d.select_widget.SetItems(d.select_items)
+	adder.AddWidget(&d.select_widget)
 	return nil
 }
 
@@ -124,7 +136,7 @@ func (d *tab_bar_widget[T]) Layout(context *guigui.Context, widgetBounds *guigui
 		Direction: guigui.LayoutDirectionHorizontal,
 		Padding:   guigui.Padding{padding, padding, padding, padding},
 		Gap:       utils.XSmallGap(context),
-		Items:     make([]guigui.LinearLayoutItem, d.tab_items.Len(), d.tab_items.Len()+1),
+		Items:     utils.FitSlice(d.layout.Items, len(d.tab_data_items)+2),
 	}
 
 	for i, tab_item := range d.tab_items.All() {
@@ -135,9 +147,13 @@ func (d *tab_bar_widget[T]) Layout(context *guigui.Context, widgetBounds *guigui
 			d.layout.Items[i].Widget = tab_item
 		}
 	}
-	d.layout.Items = append(d.layout.Items, guigui.LinearLayoutItem{
+
+	d.layout.Items[len(d.layout.Items)-2] = guigui.LinearLayoutItem{
 		Size: guigui.FlexibleSize(1),
-	})
+	}
+	d.layout.Items[len(d.layout.Items)-1] = guigui.LinearLayoutItem{
+		Widget: &d.select_widget,
+	}
 
 	b := widgetBounds.Bounds()
 	d.layout.LayoutWidgets(context, b, layouter)

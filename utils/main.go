@@ -72,3 +72,15 @@ func VerticalCenter(widget guigui.Widget) guigui.LinearLayout {
 	}
 	return layout
 }
+
+func FitSlice[T []D, D any](slice T, lenght int) T {
+	if len(slice) > lenght {
+		diffrence := len(slice) - lenght
+		return slice[:len(slice)-diffrence]
+	} else if len(slice) < lenght {
+		diffrence := lenght - len(slice)
+		slice2 := make(T, diffrence)
+		return append(slice, slice2...)
+	}
+	return slice
+}
