@@ -232,7 +232,9 @@ func (d *tab_item_widget[T]) Measure(context *guigui.Context, _ guigui.Constrain
 }
 
 func (d *tab_item_widget[T]) CursorShape(context *guigui.Context, widgetBounds *guigui.WidgetBounds) (ebiten.CursorShapeType, bool) {
-	if widgetBounds.IsHitAtCursor() {
+	if widgetBounds.IsHitAtCursor() && d.is_moving {
+		return ebiten.CursorShapeMove, true
+	} else if widgetBounds.IsHitAtCursor() {
 		return ebiten.CursorShapePointer, true
 	}
 	return 0, false
