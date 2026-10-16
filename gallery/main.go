@@ -1,9 +1,12 @@
 package main
 
 import (
+	"fmt"
+	"image"
 	"image/jpeg"
 	"log"
 	"os"
+	"slices"
 	"widgets"
 
 	"github.com/guigui-gui/guigui"
@@ -25,6 +28,11 @@ func load_image() (*ebiten.Image, error) {
 
 	return ebiten.NewImageFromImage(img), nil
 }
+
+var (
+	tab_items []widgets.TabItem[struct{}] = []widgets.TabItem[struct{}]{}
+	tab_count int                         = len(tab_items)
+)
 
 type Root struct {
 	guigui.DefaultWidget
@@ -54,7 +62,11 @@ type Root struct {
 	text_input_text basicwidget.Text
 	text_input      widgets.TextInput
 
-	layout guigui.LinearLayout
+	add_tab_text basicwidget.Text
+	add_tab_btn  basicwidget.Button
+
+	tab_container widgets.TabContainer[struct{}]
+	layout        guigui.LinearLayout
 }
 
 func (r *Root) Build(context *guigui.Context, adder *guigui.ChildAdder) error {
@@ -69,11 +81,9 @@ func (r *Root) Build(context *guigui.Context, adder *guigui.ChildAdder) error {
 		}
 	})
 
-	if !r.close.HasIcon() {
-		err := r.close.Load("icons/close.png", nil)
-		if err != nil {
-			return err
-		}
+	err := r.close.Load("icons/close.png", nil, image.Point{})
+	if err != nil {
+		return err
 	}
 	r.info_tip.SetText("This is a infomation hint.")
 
@@ -100,6 +110,22 @@ func (r *Root) Build(context *guigui.Context, adder *guigui.ChildAdder) error {
 	r.infinite_loading_bar_text.SetValue("Infinite loadingbar")
 
 	r.text_input_text.SetValue("TextInput widget with a contextmenu")
+
+	r.add_tab_text.SetValue("Add tab")
+	r.add_tab_btn.OnDown(func(context *guigui.Context) {
+		tab_count++
+		widget := basicwidget.Text{}
+		widget.SetHorizontalAlign(basicwidget.HorizontalAlignCenter)
+		widget.SetVerticalAlign(basicwidget.VerticalAlignMiddle)
+		widget.SetValue(fmt.Sprintf("Tab %v", tab_count))
+		tab_items = append(tab_items, widgets.TabItem[struct{}]{
+			Text:     fmt.Sprintf("Tab %v", tab_count),
+			Movable:  true,
+			Closable: true,
+			Widget:   &widget,
+		})
+	})
+	r.add_tab_btn.SetText("Add a new tab")
 
 	r.form.SetItems([]basicwidget.FormItem{
 		{
@@ -130,8 +156,23 @@ func (r *Root) Build(context *guigui.Context, adder *guigui.ChildAdder) error {
 			PrimaryWidget:   &r.text_input_text,
 			SecondaryWidget: &r.text_input,
 		},
+		{
+			PrimaryWidget:   &r.add_tab_text,
+			SecondaryWidget: &r.add_tab_btn,
+		},
 	})
 	adder.AddWidget(&r.form)
+
+	r.tab_container.SetTabItems(tab_items)
+	r.tab_container.OnTabClose(func(context *guigui.Context, index int, data widgets.TabItem[struct{}]) {
+		tab_items = slices.Delete(tab_items, index, index+1)
+	})
+	r.tab_container.OnTabSwitch(func(context *guigui.Context, index1 int, data1 widgets.TabItem[struct{}], index2 int, data2 widgets.TabItem[struct{}]) {
+		item1 := tab_items[index1]
+		tab_items[index1] = tab_items[index2]
+		tab_items[index2] = item1
+	})
+	adder.AddWidget(&r.tab_container)
 	return nil
 }
 
@@ -146,6 +187,10 @@ func (r *Root) Layout(context *guigui.Context, widgetBounds *guigui.WidgetBounds
 		Items: []guigui.LinearLayoutItem{
 			{
 				Widget: &r.form,
+			},
+			{
+				Widget: &r.tab_container,
+				Size:   guigui.FlexibleSize(1),
 			},
 		},
 	}
