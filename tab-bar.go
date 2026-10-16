@@ -68,6 +68,8 @@ func (d *tab_bar_content_widget[T]) Env(context *guigui.Context, key guigui.EnvK
 	case tab_item_event_holding:
 		if d.holding_widget != nil {
 			return d.holding_widget == widget, true
+		} else if len(d.tab_data_items) == 1 {
+			return false, true
 		}
 		d.holding_widget = widget
 		return true, true
@@ -80,7 +82,7 @@ func (d *tab_bar_content_widget[T]) Env(context *guigui.Context, key guigui.EnvK
 	case tab_item_event_switch_canidate:
 		d.switch_canidate_widget = widget
 	}
-	return nil, true
+	return nil, false
 }
 
 func (d *tab_bar_content_widget[T]) cancel_tab_item_moving() {
@@ -99,6 +101,13 @@ func (d *tab_bar_content_widget[T]) SetTabItems(items []TabItem[T]) {
 }
 
 func (d *tab_bar_content_widget[T]) Build(context *guigui.Context, adder *guigui.ChildAdder) error {
+	if len(d.tab_data_items) == 1 {
+		d.cancel_tab_item_moving()
+		if d.holding_widget != nil {
+			d.holding_widget.cancel_moving()
+		}
+	}
+
 	d.tab_items.SetLen(len(d.tab_data_items))
 
 	for i, tab_item_widget := range d.tab_items.All() {
@@ -231,5 +240,5 @@ func (d *tab_bar_widget[T]) Layout(context *guigui.Context, widgetBounds *guigui
 }
 
 func (d *tab_bar_widget[T]) Measure(context *guigui.Context, constraints guigui.Constraints) image.Point {
-	return d.layout.Measure(context, constraints)
+	return d.content.Measure(context, constraints)
 }

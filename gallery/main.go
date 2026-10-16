@@ -30,44 +30,8 @@ func load_image() (*ebiten.Image, error) {
 }
 
 var (
-	tab_items []widgets.TabItem[struct{}] = []widgets.TabItem[struct{}]{
-		{
-			Icon: widgets.TabIcon{
-				Icon: "icons/info-tip.png",
-			},
-			Closable: true,
-			Movable:  true,
-			Text:     "Tab 1",
-		},
-		{
-
-			Icon: widgets.TabIcon{
-				Icon: "icons/info-tip.png",
-			},
-			Closable: true,
-			Movable:  true,
-			Text:     "Tab 2",
-		},
-		{
-
-			Icon: widgets.TabIcon{
-				Icon: "icons/info-tip.png",
-			},
-			Closable: true,
-			Movable:  true,
-			Text:     "Tab 3",
-		},
-		{
-
-			Icon: widgets.TabIcon{
-				Icon: "icons/info-tip.png",
-			},
-			Movable:  true,
-			Closable: true,
-			Text:     "Tab 4",
-		},
-	}
-	tab_count int = len(tab_items)
+	tab_items []widgets.TabItem[struct{}] = []widgets.TabItem[struct{}]{}
+	tab_count int                         = len(tab_items)
 )
 
 type Root struct {
@@ -150,10 +114,15 @@ func (r *Root) Build(context *guigui.Context, adder *guigui.ChildAdder) error {
 	r.add_tab_text.SetValue("Add tab")
 	r.add_tab_btn.OnDown(func(context *guigui.Context) {
 		tab_count++
+		widget := basicwidget.Text{}
+		widget.SetHorizontalAlign(basicwidget.HorizontalAlignCenter)
+		widget.SetVerticalAlign(basicwidget.VerticalAlignMiddle)
+		widget.SetValue(fmt.Sprintf("Tab %v", tab_count))
 		tab_items = append(tab_items, widgets.TabItem[struct{}]{
 			Text:     fmt.Sprintf("Tab %v", tab_count),
 			Movable:  true,
 			Closable: true,
+			Widget:   &widget,
 		})
 	})
 	r.add_tab_btn.SetText("Add a new tab")
@@ -221,6 +190,7 @@ func (r *Root) Layout(context *guigui.Context, widgetBounds *guigui.WidgetBounds
 			},
 			{
 				Widget: &r.tab_container,
+				Size:   guigui.FlexibleSize(1),
 			},
 		},
 	}
