@@ -63,7 +63,7 @@ type Root struct {
 	text_input      widgets.TextInput
 
 	add_tab_text basicwidget.Text
-	add_tab_btn  basicwidget.Button
+	add_tab_btn  widgets.Button
 
 	tab_container widgets.TabContainer[struct{}]
 	layout        guigui.LinearLayout
@@ -128,6 +128,7 @@ func (r *Root) Build(context *guigui.Context, adder *guigui.ChildAdder) error {
 			},
 		})
 	})
+	r.add_tab_btn.SetTooltip("Add a new tab to the tab container widget")
 	r.add_tab_btn.SetText("Add a new tab")
 
 	r.form.SetItems([]basicwidget.FormItem{
