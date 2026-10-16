@@ -20,13 +20,24 @@ type tab_bar_widget[T comparable] struct {
 	last_measurement       image.Point
 	holding_widget         *tab_item_widget[T]
 	switch_canidate_widget *tab_item_widget[T]
+
+	on_tab_item_close_fn  func(context *guigui.Context, index int, data TabItem[T])
+	on_tab_item_click_fn  func(context *guigui.Context, index int, data TabItem[T])
+	on_tab_item_switch_fn func(context *guigui.Context, index1 int, data1 TabItem[T], index2 int, data2 TabItem[T])
 }
 
-// on_close
-// on_switch
-// on_widget_select
-// select_item
-// selected_item
+func (d *tab_bar_widget[T]) TabItemsLenght() int {
+	return len(d.tab_data_items)
+}
+
+func (d *tab_bar_widget[T]) SelectTabItem(index int) {
+	d.selected_tab_index = index
+}
+
+func (d *tab_bar_widget[T]) SelectedTabItem() (index int, ok bool) {
+	return d.selected_tab_index, len(d.tab_data_items) > 0
+}
+
 func (d *tab_bar_widget[T]) Env(context *guigui.Context, key guigui.EnvKey, source *guigui.EnvSource) (any, bool) {
 	widget, ok := source.Origin.(*tab_item_widget[T])
 	if !ok {
@@ -63,7 +74,8 @@ func (d *tab_bar_widget[T]) cancel_tab_item_moving() {
 func (d *tab_bar_widget[T]) SetTabItems(items []TabItem[T]) {
 	if len(d.tab_data_items) != len(items) {
 		d.cancel_tab_item_moving()
-	} else if len(items)-1 <= d.selected_tab_index {
+	}
+	if len(items)-1 <= d.selected_tab_index {
 		d.selected_tab_index = max(len(items)-1, 0)
 	}
 	d.tab_data_items = items
