@@ -3,7 +3,6 @@ package widgets
 import (
 	"embed"
 	"image"
-	"image/png"
 	"io/fs"
 
 	"github.com/guigui-gui/guigui"
@@ -22,8 +21,7 @@ type Icon struct {
 
 	size image.Point
 
-	is_black     bool
-	ebiten_img   *ebiten.Image
+	img_details  *ImageDetails
 	image_widget basicwidget.Image
 
 	load_inputs struct {
@@ -49,7 +47,14 @@ func (icon_ref *Icon) SetClickable(clickable bool) {
 }
 
 func (icon_ref *Icon) HasIcon() bool {
-	return icon_ref.ebiten_img != nil
+	return icon_ref.img_details != nil
+}
+
+func (icon_ref *Icon) fs() fs.FS {
+	if icon_ref.load_inputs.fs == nil {
+		return icon_directory
+	}
+	return icon_ref.load_inputs.fs
 }
 
 func (icon_ref *Icon) Load(icon string, fs fs.FS, size image.Point) error {
@@ -66,21 +71,29 @@ func (icon_ref *Icon) Load(icon string, fs fs.FS, size image.Point) error {
 	if size.X != 0 && size.Y != 0 {
 		icon_ref.size = size
 	}
-	// TODO: Consider a cache
-	file, err := fs.Open(icon)
-	if err != nil {
-		return err
-	}
-	defer file.Close()
 
-	img, err := png.Decode(file)
+	img_details, err := OpenImage(icon, fs)
 	if err != nil {
 		return err
 	}
-	icon_ref.ebiten_img = ebiten.NewImageFromImage(img)
+	icon_ref.img_details = img_details
 	//change_color(icon_ref.ebiten_img, basicwidgetdraw.TextColor(ebiten.ColorModeLight, true))
 	return nil
+}
 
+func (icon_ref *Icon) is_black() bool {
+	if icon_ref.img_details == nil {
+		return false
+	}
+	black, ok := icon_ref.img_details.Details.(bool)
+	if !ok {
+		return false
+	}
+	return black
+}
+
+func (icon_ref *Icon) set_is_black(black bool) (ok bool) {
+	return ChangeImageDetails(icon_ref.load_inputs.icon, icon_ref.fs(), black)
 }
 
 /*
@@ -127,17 +140,17 @@ func inverse_color(img *ebiten.Image) {
 }
 
 func (icon_ref *Icon) Build(context *guigui.Context, adder *guigui.ChildAdder) error {
-	if context.ColorMode() == ebiten.ColorModeLight && !icon_ref.is_black {
-		inverse_color(icon_ref.ebiten_img)
-		icon_ref.is_black = true
+	if context.ColorMode() == ebiten.ColorModeLight && !icon_ref.is_black() {
+		inverse_color(icon_ref.img_details.Img)
+		icon_ref.set_is_black(true)
 		guigui.RequestRedraw(&icon_ref.image_widget)
-	} else if context.ColorMode() == ebiten.ColorModeDark && icon_ref.is_black {
-		inverse_color(icon_ref.ebiten_img)
-		icon_ref.is_black = false
+	} else if context.ColorMode() == ebiten.ColorModeDark && icon_ref.is_black() {
+		inverse_color(icon_ref.img_details.Img)
+		icon_ref.set_is_black(false)
 		guigui.RequestRedraw(&icon_ref.image_widget)
 	}
 
-	icon_ref.image_widget.SetImage(icon_ref.ebiten_img)
+	icon_ref.image_widget.SetImage(icon_ref.img_details.Img)
 	adder.AddWidget(&icon_ref.image_widget)
 	return nil
 }

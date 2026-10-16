@@ -123,6 +123,9 @@ func (r *Root) Build(context *guigui.Context, adder *guigui.ChildAdder) error {
 			Movable:  true,
 			Closable: true,
 			Widget:   &widget,
+			Icon: widgets.TabIcon{
+				Icon: "icons/info-tip.png",
+			},
 		})
 	})
 	r.add_tab_btn.SetText("Add a new tab")
