@@ -22,7 +22,7 @@ type tab_bar_widget[T comparable] struct {
 	switch_canidate_widget *tab_item_widget[T]
 
 	on_tab_item_close_fn  func(context *guigui.Context, index int, data TabItem[T])
-	on_tab_item_click_fn  func(context *guigui.Context, index int, data TabItem[T])
+	on_tab_item_select_fn func(context *guigui.Context, index int, data TabItem[T])
 	on_tab_item_switch_fn func(context *guigui.Context, index1 int, data1 TabItem[T], index2 int, data2 TabItem[T])
 }
 
@@ -38,6 +38,18 @@ func (d *tab_bar_widget[T]) SelectedTabItem() (index int, ok bool) {
 	return d.selected_tab_index, len(d.tab_data_items) > 0
 }
 
+func (d *tab_bar_widget[T]) OnTabClose(fn func(context *guigui.Context, index int, data TabItem[T])) {
+	d.on_tab_item_close_fn = fn
+}
+
+func (d *tab_bar_widget[T]) OnTabSelect(fn func(context *guigui.Context, index int, data TabItem[T])) {
+	d.on_tab_item_select_fn = fn
+}
+
+func (d *tab_bar_widget[T]) OnTabSwitch(fn func(context *guigui.Context, index1 int, data1 TabItem[T], index2 int, data2 TabItem[T])) {
+	d.on_tab_item_switch_fn = fn
+}
+
 func (d *tab_bar_widget[T]) Env(context *guigui.Context, key guigui.EnvKey, source *guigui.EnvSource) (any, bool) {
 	widget, ok := source.Origin.(*tab_item_widget[T])
 	if !ok {
@@ -46,8 +58,13 @@ func (d *tab_bar_widget[T]) Env(context *guigui.Context, key guigui.EnvKey, sour
 	switch key {
 	case tab_item_event_selected:
 		d.selected_tab_index = widget.get_index()
+		if d.on_tab_item_select_fn != nil {
+			d.on_tab_item_select_fn(context, widget.get_index(), widget.get_data())
+		}
 	case tab_item_event_close:
-		println("Item closed", widget.data.Text)
+		if d.on_tab_item_close_fn != nil {
+			d.on_tab_item_close_fn(context, widget.get_index(), widget.get_data())
+		}
 	case tab_item_event_holding:
 		if d.holding_widget != nil {
 			return d.holding_widget == widget, true
@@ -55,8 +72,8 @@ func (d *tab_bar_widget[T]) Env(context *guigui.Context, key guigui.EnvKey, sour
 		d.holding_widget = widget
 		return true, true
 	case tab_item_event_cancel_holding:
-		if d.switch_canidate_widget != d.holding_widget && d.switch_canidate_widget != nil && d.switch_canidate_widget.data.Movable {
-			println("Switch canidate", d.switch_canidate_widget.get_data().Text)
+		if d.switch_canidate_widget != d.holding_widget && d.switch_canidate_widget != nil && d.switch_canidate_widget.data.Movable && d.on_tab_item_switch_fn != nil {
+			d.on_tab_item_switch_fn(context, widget.get_index(), widget.get_data(), d.switch_canidate_widget.get_index(), d.switch_canidate_widget.get_data())
 		}
 
 		d.cancel_tab_item_moving()
