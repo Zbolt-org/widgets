@@ -5,6 +5,7 @@ import (
 	"image/jpeg"
 	"log"
 	"os"
+	"slices"
 	"widgets"
 
 	"github.com/guigui-gui/guigui"
@@ -26,6 +27,46 @@ func load_image() (*ebiten.Image, error) {
 
 	return ebiten.NewImageFromImage(img), nil
 }
+
+var (
+	tab_items []widgets.TabItem[struct{}] = []widgets.TabItem[struct{}]{
+		{
+			Icon: widgets.TabIcon{
+				Icon: "icons/info-tip.png",
+			},
+			Closable: true,
+			Movable:  true,
+			Text:     "Tab 1",
+		},
+		{
+
+			Icon: widgets.TabIcon{
+				Icon: "icons/info-tip.png",
+			},
+			Closable: true,
+			Movable:  true,
+			Text:     "Tab 2",
+		},
+		{
+
+			Icon: widgets.TabIcon{
+				Icon: "icons/info-tip.png",
+			},
+			Closable: true,
+			Movable:  true,
+			Text:     "Tab 3",
+		},
+		{
+
+			Icon: widgets.TabIcon{
+				Icon: "icons/info-tip.png",
+			},
+			Movable:  true,
+			Closable: true,
+			Text:     "Tab 4",
+		},
+	}
+)
 
 type Root struct {
 	guigui.DefaultWidget
@@ -133,182 +174,14 @@ func (r *Root) Build(context *guigui.Context, adder *guigui.ChildAdder) error {
 	})
 	adder.AddWidget(&r.form)
 
-	r.tab_container.SetTabItems([]widgets.TabItem[struct{}]{
-		{
-			Icon: widgets.TabIcon{
-				Icon: "icons/info-tip.png",
-			},
-			Closable: true,
-			Movable:  true,
-			Text:     "Tab 1",
-		},
-		{
-
-			Icon: widgets.TabIcon{
-				Icon: "icons/info-tip.png",
-			},
-			Closable: true,
-			Movable:  true,
-			Text:     "Tab 2",
-		},
-		{
-
-			Icon: widgets.TabIcon{
-				Icon: "icons/info-tip.png",
-			},
-			Closable: true,
-			Movable:  true,
-			Text:     "Tab 3",
-		},
-		{
-
-			Icon: widgets.TabIcon{
-				Icon: "icons/info-tip.png",
-			},
-			Movable:  true,
-			Closable: true,
-			Text:     "Tab 4",
-		},
-		{
-			Icon: widgets.TabIcon{
-				Icon: "icons/info-tip.png",
-			},
-			Closable: true,
-			Movable:  true,
-			Text:     "Tab 1",
-		},
-		{
-
-			Icon: widgets.TabIcon{
-				Icon: "icons/info-tip.png",
-			},
-			Closable: true,
-			Movable:  true,
-			Text:     "Tab 2",
-		},
-		{
-
-			Icon: widgets.TabIcon{
-				Icon: "icons/info-tip.png",
-			},
-			Closable: true,
-			Movable:  true,
-			Text:     "Tab 3",
-		},
-		{
-
-			Icon: widgets.TabIcon{
-				Icon: "icons/info-tip.png",
-			},
-			Movable:  true,
-			Closable: true,
-			Text:     "Tab 4",
-		},
-		{
-			Icon: widgets.TabIcon{
-				Icon: "icons/info-tip.png",
-			},
-			Closable: true,
-			Movable:  true,
-			Text:     "Tab 1",
-		},
-		{
-
-			Icon: widgets.TabIcon{
-				Icon: "icons/info-tip.png",
-			},
-			Closable: true,
-			Movable:  true,
-			Text:     "Tab 2",
-		},
-		{
-
-			Icon: widgets.TabIcon{
-				Icon: "icons/info-tip.png",
-			},
-			Closable: true,
-			Movable:  true,
-			Text:     "Tab 3",
-		},
-		{
-
-			Icon: widgets.TabIcon{
-				Icon: "icons/info-tip.png",
-			},
-			Movable:  true,
-			Closable: true,
-			Text:     "Tab 4",
-		},
-		{
-			Icon: widgets.TabIcon{
-				Icon: "icons/info-tip.png",
-			},
-			Closable: true,
-			Movable:  true,
-			Text:     "Tab 1",
-		},
-		{
-
-			Icon: widgets.TabIcon{
-				Icon: "icons/info-tip.png",
-			},
-			Closable: true,
-			Movable:  true,
-			Text:     "Tab 2",
-		},
-		{
-
-			Icon: widgets.TabIcon{
-				Icon: "icons/info-tip.png",
-			},
-			Closable: true,
-			Movable:  true,
-			Text:     "Tab 3",
-		},
-		{
-
-			Icon: widgets.TabIcon{
-				Icon: "icons/info-tip.png",
-			},
-			Movable:  true,
-			Closable: true,
-			Text:     "Tab 4",
-		},
-		{
-			Icon: widgets.TabIcon{
-				Icon: "icons/info-tip.png",
-			},
-			Closable: true,
-			Movable:  true,
-			Text:     "Tab 1",
-		},
-		{
-
-			Icon: widgets.TabIcon{
-				Icon: "icons/info-tip.png",
-			},
-			Closable: true,
-			Movable:  true,
-			Text:     "Tab 2",
-		},
-		{
-
-			Icon: widgets.TabIcon{
-				Icon: "icons/info-tip.png",
-			},
-			Closable: true,
-			Movable:  true,
-			Text:     "Tab 3",
-		},
-		{
-
-			Icon: widgets.TabIcon{
-				Icon: "icons/info-tip.png",
-			},
-			Movable:  true,
-			Closable: true,
-			Text:     "Tab 4",
-		},
+	r.tab_container.SetTabItems(tab_items)
+	r.tab_container.OnTabClose(func(context *guigui.Context, index int, data widgets.TabItem[struct{}]) {
+		tab_items = slices.Delete(tab_items, index, index+1)
+	})
+	r.tab_container.OnTabSwitch(func(context *guigui.Context, index1 int, data1 widgets.TabItem[struct{}], index2 int, data2 widgets.TabItem[struct{}]) {
+		item1 := tab_items[index1]
+		tab_items[index1] = tab_items[index2]
+		tab_items[index2] = item1
 	})
 	adder.AddWidget(&r.tab_container)
 	return nil

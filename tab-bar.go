@@ -207,7 +207,7 @@ func (d *tab_bar_widget[T]) OnTabSelect(fn func(context *guigui.Context, index i
 }
 
 func (d *tab_bar_widget[T]) OnTabSwitch(fn func(context *guigui.Context, index1 int, data1 TabItem[T], index2 int, data2 TabItem[T])) {
-	d.OnTabSwitch(fn)
+	d.content.OnTabSwitch(fn)
 }
 
 func (d *tab_bar_widget[T]) Build(context *guigui.Context, adder *guigui.ChildAdder) error {

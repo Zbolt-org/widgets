@@ -10,18 +10,39 @@ import (
 type TabContainer[T comparable] struct {
 	guigui.DefaultWidget
 
-	tab_items []TabItem[T]
 	tab_bar   tab_bar_widget[T]
-
 	layout guigui.LinearLayout
 }
 
 func (d *TabContainer[T]) SetTabItems(items []TabItem[T]) {
-	d.tab_items = items
+	d.tab_bar.SetTabItems(items)
+}
+
+func (d *TabContainer[T]) TabItemsLenght() int {
+	return d.tab_bar.TabItemsLenght()
+}
+
+func (d *TabContainer[T]) SelectTabItem(index int) {
+	d.tab_bar.SelectTabItem(index)
+}
+
+func (d *TabContainer[T]) SelectedTabItem() (index int, ok bool) {
+	return d.tab_bar.SelectedTabItem()
+}
+
+func (d *TabContainer[T]) OnTabClose(fn func(context *guigui.Context, index int, data TabItem[T])) {
+	d.tab_bar.OnTabClose(fn)
+}
+
+func (d *TabContainer[T]) OnTabSelect(fn func(context *guigui.Context, index int, data TabItem[T])) {
+	d.tab_bar.OnTabSelect(fn)
+}
+
+func (d *TabContainer[T]) OnTabSwitch(fn func(context *guigui.Context, index1 int, data1 TabItem[T], index2 int, data2 TabItem[T])) {
+	d.tab_bar.OnTabSwitch(fn)
 }
 
 func (d *TabContainer[T]) Build(context *guigui.Context, adder *guigui.ChildAdder) error {
-	d.tab_bar.SetTabItems(d.tab_items)
 	adder.AddWidget(&d.tab_bar)
 	return nil
 }
