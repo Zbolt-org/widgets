@@ -65,6 +65,9 @@ type Root struct {
 	add_tab_text basicwidget.Text
 	add_tab_btn  widgets.Button
 
+	link_text basicwidget.Text
+	link      widgets.Link
+
 	tab_container widgets.TabContainer[struct{}]
 	layout        guigui.LinearLayout
 }
@@ -131,6 +134,11 @@ func (r *Root) Build(context *guigui.Context, adder *guigui.ChildAdder) error {
 	r.add_tab_btn.SetTooltip("Add a new tab to the tab container widget")
 	r.add_tab_btn.SetText("Add a new tab")
 
+	r.link_text.SetValue("Link")
+	r.link.SetValue("Click here to open the link")
+	r.link.SetURL_Str("https://www.youtube.com/")
+	r.link.SetSelectable(true)
+
 	r.form.SetItems([]basicwidget.FormItem{
 		{
 			PrimaryWidget:   &r.labeled_toggle_text,
@@ -163,6 +171,10 @@ func (r *Root) Build(context *guigui.Context, adder *guigui.ChildAdder) error {
 		{
 			PrimaryWidget:   &r.add_tab_text,
 			SecondaryWidget: &r.add_tab_btn,
+		},
+		{
+			PrimaryWidget:   &r.link_text,
+			SecondaryWidget: &r.link,
 		},
 	})
 	adder.AddWidget(&r.form)
