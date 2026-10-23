@@ -137,7 +137,7 @@ func (r *Root) Build(context *guigui.Context, adder *guigui.ChildAdder) error {
 	r.link_text.SetValue("Link")
 	r.link.SetValue("Click here to open the link")
 	r.link.SetURL_Str("https://www.youtube.com/")
-	r.link.SetSelectable(true)
+	//r.link.SetSelectable(true)
 
 	r.form.SetItems([]basicwidget.FormItem{
 		{
