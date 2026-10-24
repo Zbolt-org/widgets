@@ -7,8 +7,8 @@ import (
 	"log"
 	"os"
 	"slices"
-	"widgets"
 
+	"github.com/Zbolt-org/widgets"
 	"github.com/guigui-gui/guigui"
 	"github.com/guigui-gui/guigui/basicwidget"
 	"github.com/hajimehoshi/ebiten/v2"

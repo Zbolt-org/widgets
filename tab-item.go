@@ -3,7 +3,7 @@ package widgets
 import (
 	"image"
 	"io/fs"
-	"widgets/utils"
+	"github.com/Zbolt-org/widgets/utils"
 
 	"github.com/guigui-gui/guigui"
 	"github.com/guigui-gui/guigui/basicwidget"
