@@ -1,4 +1,4 @@
-module widgets
+module github.com/Zbolt-org/widgets
 
 go 1.26.1
 
