@@ -2,6 +2,7 @@ package widgets
 
 import (
 	"image"
+	"io/fs"
 
 	"github.com/guigui-gui/guigui"
 	"github.com/guigui-gui/guigui/basicwidget"
@@ -28,9 +29,9 @@ const (
 
 // TextInput is a widget for text input with context menu support.
 type TextInput struct {
-	guigui.DefaultWidget
+	//guigui.DefaultWidget
 
-	text_input                  basicwidget.TextInput
+	basicwidget.TextInput
 	context_menu_area           basicwidget.ContextMenuArea[int]
 	context_menu_items_disables [6]bool
 
@@ -38,10 +39,28 @@ type TextInput struct {
 	on_additional_item_selected  func(context *guigui.Context, index int)
 
 	text_content TextContent
+
+	img_details *ImageDetails
+	icon_name   string
+	icon_fs     fs.FS
 }
 
-func (d *TextInput) TextInput() *basicwidget.TextInput {
-	return &d.text_input
+func (d *TextInput) SetIcon(icon_name string, fs fs.FS) error {
+	if fs == nil {
+		fs = icon_directory
+	}
+	if d.icon_name == icon_name && d.icon_fs == fs {
+		return nil
+	}
+
+	details, err := OpenImage(icon_name, fs)
+	if err != nil {
+		return err
+	}
+	d.img_details = details
+	d.icon_name = icon_name
+	d.icon_fs = fs
+	return nil
 }
 
 func (d *TextInput) SetTextContent(textcontent TextContent) {
@@ -79,8 +98,6 @@ func (d *TextInput) Disable(item context_menu_item) bool {
 }
 
 func (d *TextInput) Build(context *guigui.Context, adder *guigui.ChildAdder) error {
-	adder.AddWidget(&d.text_input)
-
 	context_menu := d.context_menu_area.PopupMenu()
 	contextmenu_items := []basicwidget.PopupMenuItem[int]{
 		{
@@ -137,37 +154,37 @@ func (d *TextInput) Build(context *guigui.Context, adder *guigui.ChildAdder) err
 			return
 		}
 
+		text_input := &d.TextInput
 		switch index {
 		case ContextMenuItemCopy:
-			text_input := d.TextInput()
 			text_input.Copy()
 		case ContextMenuItemPaste:
-			text_input := d.TextInput()
 			text_input.Paste()
 		case ContextMenuItemCut:
-			text_input := d.TextInput()
 			text_input.Cut()
 		case ContextMenuItemSelectAll:
-			text_input := d.TextInput()
 			text_input.SelectAll()
 		case ContextMenuItemUndo:
-			text_input := d.TextInput()
 			text_input.Undo()
 		case ContextMenuItemRedo:
-			text_input := d.TextInput()
 			text_input.Redo()
 		}
 	})
 	adder.AddWidget(&d.context_menu_area)
-	return nil
+
+	if d.img_details != nil {
+		handle_icon_color_mod(context, d.img_details, d.icon_name, d.icon_fs, &d.TextInput)
+		d.TextInput.SetIcon(d.img_details.Img)
+	}
+	return d.TextInput.Build(context, adder)
 }
 
 func (d *TextInput) Layout(context *guigui.Context, widgetBounds *guigui.WidgetBounds, layouter *guigui.ChildLayouter) {
 	b := widgetBounds.Bounds()
-	layouter.LayoutWidget(&d.text_input, b)
+	d.TextInput.Layout(context, widgetBounds, layouter)
 	layouter.LayoutWidget(&d.context_menu_area, b)
 }
 
 func (d *TextInput) Measure(context *guigui.Context, constraints guigui.Constraints) image.Point {
-	return d.text_input.Measure(context, constraints)
+	return d.TextInput.Measure(context, constraints)
 }

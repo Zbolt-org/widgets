@@ -81,19 +81,28 @@ func (icon_ref *Icon) Load(icon string, fs fs.FS, size image.Point) error {
 	return nil
 }
 
-func (icon_ref *Icon) is_black() bool {
-	if icon_ref.img_details == nil {
+func is_black(img_details *ImageDetails) bool {
+	if img_details == nil {
 		return false
 	}
-	black, ok := icon_ref.img_details.Details.(bool)
+	black, ok := img_details.Details.(bool)
 	if !ok {
 		return false
 	}
 	return black
+
+}
+
+func (icon_ref *Icon) is_black() bool {
+	return icon_ref.is_black()
+}
+
+func set_is_black(name string, fs fs.FS, black bool) (ok bool) {
+	return ChangeImageDetails(name, fs, black)
 }
 
 func (icon_ref *Icon) set_is_black(black bool) (ok bool) {
-	return ChangeImageDetails(icon_ref.load_inputs.icon, icon_ref.fs(), black)
+	return set_is_black(icon_ref.load_inputs.icon, icon_ref.fs(), black)
 }
 
 /*
@@ -139,16 +148,20 @@ func inverse_color(img *ebiten.Image) {
 	img.WritePixels(pixels)
 }
 
-func (icon_ref *Icon) Build(context *guigui.Context, adder *guigui.ChildAdder) error {
-	if context.ColorMode() == ebiten.ColorModeLight && !icon_ref.is_black() {
-		inverse_color(icon_ref.img_details.Img)
-		icon_ref.set_is_black(true)
-		guigui.RequestRedraw(&icon_ref.image_widget)
-	} else if context.ColorMode() == ebiten.ColorModeDark && icon_ref.is_black() {
-		inverse_color(icon_ref.img_details.Img)
-		icon_ref.set_is_black(false)
-		guigui.RequestRedraw(&icon_ref.image_widget)
+func handle_icon_color_mod(context *guigui.Context, img_details *ImageDetails, icon_name string, fs fs.FS, widget guigui.Widget) {
+	if context.ColorMode() == ebiten.ColorModeLight && !is_black(img_details) {
+		inverse_color(img_details.Img)
+		set_is_black(icon_name, fs, true)
+		guigui.RequestRedraw(widget)
+	} else if context.ColorMode() == ebiten.ColorModeDark && is_black(img_details) {
+		inverse_color(img_details.Img)
+		set_is_black(icon_name, fs, false)
+		guigui.RequestRedraw(widget)
 	}
+}
+
+func (icon_ref *Icon) Build(context *guigui.Context, adder *guigui.ChildAdder) error {
+	handle_icon_color_mod(context, icon_ref.img_details, icon_ref.load_inputs.icon, icon_ref.fs(), &icon_ref.image_widget)
 
 	icon_ref.image_widget.SetImage(icon_ref.img_details.Img)
 	adder.AddWidget(&icon_ref.image_widget)

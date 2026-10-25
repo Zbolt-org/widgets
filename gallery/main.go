@@ -113,8 +113,10 @@ func (r *Root) Build(context *guigui.Context, adder *guigui.ChildAdder) error {
 	r.infinite_loading_bar_text.SetValue("Infinite loadingbar")
 
 	r.text_input_text.SetValue("TextInput widget with a contextmenu")
+	r.text_input.SetIcon("icons/input.png", nil)
 
 	r.add_tab_text.SetValue("Add tab")
+	r.add_tab_btn.SetIcon("icons/add.png", nil)
 	r.add_tab_btn.OnDown(func(context *guigui.Context) {
 		tab_count++
 		widget := basicwidget.Text{}
