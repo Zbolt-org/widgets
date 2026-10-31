@@ -5,6 +5,7 @@ import (
 	"image"
 	"io/fs"
 
+	"github.com/Zbolt-org/widgets/utils"
 	"github.com/guigui-gui/guigui"
 	"github.com/guigui-gui/guigui/basicwidget"
 	"github.com/hajimehoshi/ebiten/v2"
@@ -32,6 +33,8 @@ type Icon struct {
 
 	clickable   bool
 	on_click_fn func(context *guigui.Context, icon_ref *Icon)
+
+	layout guigui.LinearLayout
 }
 
 func (icon_ref *Icon) OnClick(fn func(context *guigui.Context, icon_ref *Icon)) {
@@ -168,16 +171,33 @@ func (icon_ref *Icon) Build(context *guigui.Context, adder *guigui.ChildAdder) e
 	return nil
 }
 
-func (icon_ref *Icon) Layout(context *guigui.Context, widgetBounds *guigui.WidgetBounds, layouter *guigui.ChildLayouter) {
-	layouter.LayoutWidget(&icon_ref.image_widget, widgetBounds.Bounds())
-}
-
-func (icon_ref *Icon) Measure(context *guigui.Context, constraints guigui.Constraints) image.Point {
+func (icon_ref *Icon) Size(context *guigui.Context) image.Point {
 	if icon_ref.size.X == 0 && icon_ref.size.Y == 0 {
 		line_height := basicwidget.LineHeight(context)
 		return image.Pt(line_height, line_height)
 	}
 	return icon_ref.size
+}
+
+func (icon_ref *Icon) Layout(context *guigui.Context, widgetBounds *guigui.WidgetBounds, layouter *guigui.ChildLayouter) {
+	s := icon_ref.Size(context)
+	icon_ref.layout = guigui.LinearLayout{
+		Direction: guigui.LayoutDirectionHorizontal,
+		Items: []guigui.LinearLayoutItem{
+			{Size: guigui.FlexibleSize(1)},
+			{
+				Size:   guigui.FixedSize(s.X),
+				Layout: utils.VerticalCenter(&icon_ref.image_widget),
+			},
+			{Size: guigui.FlexibleSize(1)},
+		},
+	}
+	icon_ref.layout.Items[1].Layout.(guigui.LinearLayout).Items[1].Size = guigui.FixedSize(s.Y)
+	icon_ref.layout.LayoutWidgets(context, widgetBounds.Bounds(), layouter)
+}
+
+func (icon_ref *Icon) Measure(context *guigui.Context, constraints guigui.Constraints) image.Point {
+	return icon_ref.layout.Measure(context, constraints)
 }
 
 func (icon_ref *Icon) HandlePointingInput(context *guigui.Context, widgetBounds *guigui.WidgetBounds) guigui.HandleInputResult {
