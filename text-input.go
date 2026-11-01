@@ -103,19 +103,19 @@ func (d *TextInput) Build(context *guigui.Context, adder *guigui.ChildAdder) err
 		{
 			Text:     "Copy",
 			KeyText:  "Ctrl+C",
-			Disabled: d.context_menu_items_disables[ContextMenuItemCopy],
+			Disabled: d.context_menu_items_disables[ContextMenuItemCopy] || !d.TextInput.CanCopy(),
 			Value:    ContextMenuItemCopy,
 		},
 		{
 			Text:     "Paste",
 			KeyText:  "Ctrl+V",
-			Disabled: d.context_menu_items_disables[ContextMenuItemPaste],
+			Disabled: d.context_menu_items_disables[ContextMenuItemPaste] || !d.TextInput.CanPaste(),
 			Value:    ContextMenuItemPaste,
 		},
 		{
 			Text:     "Cut",
 			KeyText:  "Ctrl+X",
-			Disabled: d.context_menu_items_disables[ContextMenuItemCut],
+			Disabled: d.context_menu_items_disables[ContextMenuItemCut] || !d.TextInput.CanCut(),
 			Value:    ContextMenuItemCut,
 		},
 		{
@@ -127,13 +127,13 @@ func (d *TextInput) Build(context *guigui.Context, adder *guigui.ChildAdder) err
 		{
 			Text:     "Undo",
 			KeyText:  "Ctrl+Z",
-			Disabled: d.context_menu_items_disables[ContextMenuItemUndo],
+			Disabled: d.context_menu_items_disables[ContextMenuItemUndo] || !d.TextInput.Undo(),
 			Value:    ContextMenuItemUndo,
 		},
 		{
 			Text:     "Redo",
 			KeyText:  "Ctrl+Y",
-			Disabled: d.context_menu_items_disables[ContextMenuItemRedo],
+			Disabled: d.context_menu_items_disables[ContextMenuItemRedo] || !d.TextInput.CanRedo(),
 			Value:    ContextMenuItemRedo,
 		},
 	}
