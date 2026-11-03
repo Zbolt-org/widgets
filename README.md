@@ -8,8 +8,7 @@ A collection of reusable widgets for [Guigui](https://github.com/guigui-gui/guig
 >
 > **Not supported yet:** disabling a widget. See [Known limitations](#known-limitations).
 
-<!-- TODO: replace the placeholder below with a real screenshot, e.g. docs/images/gallery.png -->
-![Gallery screenshot](https://placehold.co/960x600?text=Gallery+screenshot)
+![Gallery screenshot]([https://placehold.co/960x600?text=Gallery+screenshot](https://raw.githubusercontent.com/Zbolt-org/widgets/refs/heads/main/gallery/preview.png))
 
 ## Contents
 
