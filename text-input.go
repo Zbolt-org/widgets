@@ -127,7 +127,7 @@ func (d *TextInput) Build(context *guigui.Context, adder *guigui.ChildAdder) err
 		{
 			Text:     "Undo",
 			KeyText:  "Ctrl+Z",
-			Disabled: d.context_menu_items_disables[ContextMenuItemUndo] || !d.TextInput.Undo(),
+			Disabled: d.context_menu_items_disables[ContextMenuItemUndo] || !d.TextInput.CanUndo(),
 			Value:    ContextMenuItemUndo,
 		},
 		{
