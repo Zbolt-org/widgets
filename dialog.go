@@ -5,6 +5,7 @@ import (
 	"github.com/hajimehoshi/dialog"
 )
 
+// MessageDialog is a widget that displays a message dialog.
 type MessageDialog struct {
 	guigui.DefaultWidget
 	init                bool
@@ -13,22 +14,27 @@ type MessageDialog struct {
 	on_yes_no_result_fn func(context *guigui.Context, value bool)
 }
 
+// Sets the title of the dialog.
 func (d *MessageDialog) Title(title string) {
 	d.dialog.Dlg.Title = title
 }
 
+// Sets the message of the dialog.
 func (d *MessageDialog) Message(message string) {
 	d.dialog.Msg = message
 }
 
+// Opens the error dialog.
 func (d *MessageDialog) Error() {
 	go d.dialog.Error()
 }
 
+// Opens the info dialog.
 func (d *MessageDialog) Info() {
 	go d.dialog.Info()
 }
 
+// Opens the yes/no dialog.
 // Must wait until last YesNo dialog finishes before calling.
 func (d *MessageDialog) YesNo(fn func(context *guigui.Context, value bool)) {
 	d.on_yes_no_result_fn = fn
@@ -59,6 +65,7 @@ type browse_results struct {
 	err       error
 }
 
+// DirectoryDialog is a widget that opens a directory dialog.
 type DirectoryDialog struct {
 	guigui.DefaultWidget
 	init                bool
@@ -67,14 +74,17 @@ type DirectoryDialog struct {
 	browse_result_c     chan browse_results
 }
 
+// Sets the title of the directory dialog.
 func (b *DirectoryDialog) Title(title string) {
 	b.dialog.Dlg.Title = title
 }
 
+// Sets the start directory of the directory dialog.
 func (b *DirectoryDialog) SetStartDir(dir string) {
 	b.dialog.StartDir = dir
 }
 
+// Opens the directory dialog.
 func (b *DirectoryDialog) Browse(fn func(context *guigui.Context, file_path string, err error)) {
 	b.on_browse_result_fn = fn
 	go func() {
@@ -102,6 +112,7 @@ func (d *DirectoryDialog) Build(context *guigui.Context, adder *guigui.ChildAdde
 	return nil
 }
 
+// FileDialog is a widget that opens a file dialog.
 type FileDialog struct {
 	guigui.DefaultWidget
 	init   bool
@@ -111,22 +122,31 @@ type FileDialog struct {
 	loadsave_c            chan browse_results
 }
 
+// Sets the title of the file dialog.
 func (d *FileDialog) Title(title string) {
 	d.dialog = d.dialog.Title(title)
 }
 
+// Filter adds a category of files to the types allowed by the dialog. Multiple
+// calls to Filter are cumulative - any of the provided categories will be allowed.
+// By default all files can be selected.
+//
+// The special extension '*' allows all files to be selected when the Filter is active.
 func (d *FileDialog) Filter(desc string, extensions ...string) {
 	d.dialog = d.dialog.Filter(desc, extensions...)
 }
 
+// SetStartDir sets the directory that the file dialog will open in.
 func (d *FileDialog) SetStartDir(startDir string) {
 	d.dialog = d.dialog.SetStartDir(startDir)
 }
 
+// SetStartFile sets the file that the file dialog will open with.
 func (d *FileDialog) SetStartFile(startFile string) {
 	d.dialog = d.dialog.SetStartFile(startFile)
 }
 
+// Load opens the file dialog in load mode.
 func (d *FileDialog) Load(fn func(context *guigui.Context, file_path string, err error)) {
 	d.on_loadsave_result_fn = fn
 	go func() {
@@ -138,6 +158,7 @@ func (d *FileDialog) Load(fn func(context *guigui.Context, file_path string, err
 	}()
 }
 
+// Save opens the file dialog in save mode.
 func (d *FileDialog) Save(fn func(context *guigui.Context, file_path string, err error)) {
 	d.on_loadsave_result_fn = fn
 	go func() {
