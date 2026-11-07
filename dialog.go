@@ -127,13 +127,17 @@ func (d *FileDialog) Title(title string) {
 	d.dialog = d.dialog.Title(title)
 }
 
-// Filter adds a category of files to the types allowed by the dialog. Multiple
-// calls to Filter are cumulative - any of the provided categories will be allowed.
+// Filter adds a category of files to the types allowed by the dialog. Any of the provided categories will be allowed.
 // By default all files can be selected.
 //
 // The special extension '*' allows all files to be selected when the Filter is active.
-func (d *FileDialog) Filter(desc string, extensions ...string) {
-	d.dialog = d.dialog.Filter(desc, extensions...)
+func (d *FileDialog) Filter(filters []dialog.FileFilter) {
+	for i, f := range filters {
+		if len(f.Extensions) == 0 {
+			filters[i].Extensions = append(filters[i].Extensions, "*")
+		}
+	}
+	d.dialog.Filters = filters
 }
 
 // SetStartDir sets the directory that the file dialog will open in.
