@@ -116,7 +116,7 @@ func (d *DirectoryDialog) Build(context *guigui.Context, adder *guigui.ChildAdde
 type FileDialog struct {
 	guigui.DefaultWidget
 	init   bool
-	dialog *dialog.FileBuilder
+	dialog dialog.FileBuilder
 
 	on_loadsave_result_fn func(context *guigui.Context, file_path string, err error)
 	loadsave_c            chan browse_results
@@ -124,7 +124,7 @@ type FileDialog struct {
 
 // Sets the title of the file dialog.
 func (d *FileDialog) Title(title string) {
-	d.dialog = d.dialog.Title(title)
+	d.dialog.Dlg.Title = title
 }
 
 // Filter adds a category of files to the types allowed by the dialog. Any of the provided categories will be allowed.
@@ -142,12 +142,12 @@ func (d *FileDialog) Filter(filters []dialog.FileFilter) {
 
 // SetStartDir sets the directory that the file dialog will open in.
 func (d *FileDialog) SetStartDir(startDir string) {
-	d.dialog = d.dialog.SetStartDir(startDir)
+	d.dialog.StartDir = startDir
 }
 
 // SetStartFile sets the file that the file dialog will open with.
 func (d *FileDialog) SetStartFile(startFile string) {
-	d.dialog = d.dialog.SetStartFile(startFile)
+	d.dialog.StartFile = startFile
 }
 
 // Load opens the file dialog in load mode.
